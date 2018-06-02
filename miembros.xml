@@ -1,0 +1,17 @@
+<grupo>
+  <nombre>jujuOperativos</nombre>
+  <!-- <repositorio>https://bitbucket.org/jujuOperativos</repositorio> ¿URL para clonar?-->
+  <repositorio>https://bitbucket.org/jalcara1/jujuoperativos/</repositorio>
+  <miembro>
+    <nombre>Juan Pablo Alcaraz Florez</nombre>
+    <codigo>201510046010</codigo>
+    <grupo>031</grupo>
+    <email>jalcara1@eafit.edu.co</email>
+  </miembro>
+  <miembro>
+    <nombre>Julian David Arango Lopez</nombre>
+    <codigo>201510102010</codigo>
+    <grupo>031</grupo>
+    <email>jarangol@eafit.edu.co</email>
+  </miembro>
+</grupo>
