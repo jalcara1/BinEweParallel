@@ -76,23 +76,38 @@ int main(int argc, char** argv){
     return 1;
   }
   //createMemory(argv[1]);
-  int input, Segments =0;
+  int input, Segments = 0, segSize;
   int memorySegments[6];
   fstream myReadFileMew(argv[2],ios_base::binary|ios_base::in);
   if (myReadFileMew.is_open()) {
     while (!myReadFileMew.eof()) {
       myReadFileMew.read((char*)&input,sizeof(int));
       if(Segments <= 5){
-	cout << "~ " << input << endl;
-	if((input%4)!= 0 ){
-	  input -= (input%4)+4;
-	}
-	memorySegments[Segments] = input << 2; //Verify
-	Segments++;
+        // cout << "~ " << input << endl;
+        segSize = input & 0x0000FFFF; // sacamos los 4 bits de la derecha
+        input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16)
+        input <<= 2; // multiplicamos por 2^2 
+        cout << "desde " << input<< endl;
+        
+        if(Segments == 2 || Segments == 4){ //solo si es litstr o .datastr
+          if((segSize%4)!= 0 ){
+            cout << "size no es multiplo de 4 "<< segSize << endl;
+            segSize -= (segSize%4)+4; // no funciona con -=
+          }
+        }
+        segSize <<=2;    //se corre o no? se daña cuando es con string
+        
+        // cout << "hasta " << hex << (input+segSize) << endl;
+        memorySegments[Segments] = (input+segSize); //guardamos el inicio o el fin
+        cout << "limite " << hex << memorySegments[Segments] << endl;
+        Segments++;
       }
-      cout << "* " << input << endl;
+      // cout << "* " << input << endl;
     }
   }
+
+
+
   //Assign Correct Value
   cout << " AQUI " << memorySegments[0]  << endl;
   // *pMemg = memorySegments[0];
