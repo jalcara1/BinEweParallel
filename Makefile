@@ -6,4 +6,4 @@ ControlEwe: $(OBJ)
 	$(CC) $(CFLAGS) -o ControlEwe $(OBJ) -lrt
 clean:
 	rm -f ControlEwe
-	rm -f *.o *~ 
+	rm -f src/*.o src/*~ 

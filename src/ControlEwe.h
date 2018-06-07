@@ -6,11 +6,21 @@ class ControlEwe {
 
  public:
   int readMew();
+  int createMemory(char* shmname);
   ControlEwe(char** argv); // This is the constructor declaration
   ~ControlEwe(); // This is the destructor: declaration
+  
  private:
-  int argc;
   char** argv;
+  
+  char *pMemg;
+  int *pLitNum; 
+  char *pLitStr;
+  int *pDataNum;
+  char *pDataStr;
+  int *pWorkLoad;
+  //off_t *size_mem;
+
 };
 
 #endif 
