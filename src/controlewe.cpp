@@ -56,7 +56,7 @@ int main(int argc, char** argv){
         segSize = input & 0x0000FFFF; // sacamos los 4 bits de la derecha
         input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
         input <<= 2; // multiplicamos por 2^2 
-        cout << "desde " << input<< endl;
+        // cout << "desde " << input<< endl;
         // cout << "tamaño " << segSize<< endl;
         if(Segments == 2 || Segments == 4){ //solo si es litstr o .datastr
           if((segSize%4)!= 0 ){
@@ -72,52 +72,38 @@ int main(int argc, char** argv){
 
         // cout << "hasta " << hex << (input+segSize) << endl;
         memorySegments[Segments] = input; //guardamos el inicio o el fin
-        cout << Segments << ":"<< hex << input << endl;
         Segments++;
       }
       // cout << "* " << input << endl;
     }
   }
   size_mem= memorySegments[5]+segSize;
-  
+
   for(int i = 0;i<Segments;++i){
-    cout << "segmento "<< i <<" "<<memorySegments[i]<<endl;
+    cout << "segmento "<< i <<" "<< hex<<memorySegments[i]<<endl;
   }
 
   // creamos la memoria
   createMemory(argv[1]);
   
-  pLitNum = (int *)(pMemg + memorySegments[0]);
-  pLitStr = (char *)(pMemg + memorySegments[1]); //Char
-  pDataNum = (int *)(pMemg + memorySegments[2]);
-  pDataStr = (char *)(pMemg + memorySegments[3]); //Char
-  pWorkLoad = (int *)(pMemg + memorySegments[4]);
+  pLitNum = (int *)(pMemg + memorySegments[1]);
+  pLitStr = (char *)(pMemg + memorySegments[2]); //Char
+  pDataNum = (int *)(pMemg + memorySegments[3]);
+  pDataStr = (char *)(pMemg + memorySegments[4]); //Char
+  pWorkLoad = (int *)(pMemg + memorySegments[5]);
 
-  int tam = (memorySegments[2]-memorySegments[1]);
-  cout << hex << tam << endl;
-
-  for (;;) {
-    for(int i=0;i<tam;++i){
-      cout << i << endl;
-      // *(pMemg+i) = 1;
-      // *(pLitNum+i) = 4;
-      // *(pLitStr+i) = 'a';
-      // *(pDataNum+i) = 16; 
-      // *(pDataStr+i) = 'A'; 
-      // *(pWorkLoad+i) = 32; 
-    }
-
-
-    sleep(3);
-  }
-  
-
-  // // cout << "- " << *pMemg;
-  // cout << "\n-- " << *pLitNum;
-  // cout << "\n--- " << *pLitStr;
-  // cout << "\n---- " << *pDataNum;
-  // cout << "\n----- " << *pDataStr;
-  // cout << "\n------ " << *pWorkLoad;
+  // for (;;) {
+  //   *(pMemg) = 1;
+  //   *(pMemg+1) = 1;
+  //   *(pLitNum) = 4;
+  //   *(pLitNum+1) = 4;
+  //   *(pLitStr) = 'a';
+  //   *(pLitStr+1) = 'a';
+  //   *(pDataNum) = 16; 
+  //   *(pDataStr) = 'A'; 
+  //   *(pWorkLoad) = 32;    
+  //   sleep(3);
+  // }
   
   cout << endl;
   myReadFileMew.close();
