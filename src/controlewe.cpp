@@ -26,7 +26,6 @@ int createMemory(char* shmname){
     cerr << "Shared memory already created" << endl;
     return 1;
   }
-  size_mem= 1000; // Workload -> Memory last size
   if (ftruncate(shm, size_mem) == -1) {
     cerr << "Problems with memory size" << endl;
     return 1;
@@ -45,53 +44,60 @@ int main(int argc, char** argv){
     return 1;
   }
 
-  int input, Segments = 0, segSize;
-  int memorySegments[6];
+  unsigned int input, Segments = 0, segSize;
+  int memorySegments[10][2];
   fstream myReadFileMew(argv[2],ios_base::binary|ios_base::in);
+  
   if (myReadFileMew.is_open()) {
+    for(int i=0;i<=5;++i){
+      myReadFileMew.read((char*)&input,sizeof(int));
+      segSize = input & 0x0000FFFF; // sacamos los 4 bits de la derecha
+      input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
+      input <<= 2; // multiplicamos por 2^2 
+     
+      if(i == 2 || i == 4){ //solo si es litstr o .datastr
+        if((segSize%4)!= 0 ){
+          segSize = segSize-(segSize%4)+4; // no funciona con -=
+        }
+      }else{
+        segSize <<= 2;    //se corre o no? se daña cuando es con string
+      }
+     
+      memorySegments[i][0] = input; //guardamos el inicio o el fin
+      memorySegments[i][1] = segSize; //guardamos el inicio o el fin
+    }
+
+    for(int i=6;i<=10;++i){
+      myReadFileMew.read((char*)&input,sizeof(int));
+      segSize = input & 0x0000FFFF; // sacamos los 4 bits de la derecha
+      input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
+
+      memorySegments[i][0] = input; //guardamos el inicio o el fin
+      memorySegments[i][1] = segSize-input; //guardamos el inicio o el fin
+    }
+
+    for(int i = 0;i<10;++i){
+      cout << "seg:"<< i <<" ini:"<< hex <<memorySegments[i][0]<<" tam:"<<memorySegments[i][1]<<endl;  
+    }
+  
+    size_mem= memorySegments[5][1]+memorySegments[5][0];
+
+    // creamos la memoria
+    createMemory(argv[1]);
+    
+    pLitNum = (int *)(pMemg + memorySegments[1][0]);
+    pLitStr = (char *)(pMemg + memorySegments[2][0]); //Char
+    pDataNum = (int *)(pMemg + memorySegments[3][0]);
+    pDataStr = (char *)(pMemg + memorySegments[4][0]); //Char
+    pWorkLoad = (int *)(pMemg + memorySegments[5][0]);
+      
     while (!myReadFileMew.eof()) {
       myReadFileMew.read((char*)&input,sizeof(int));
-      if(Segments <= 5){
-        // cout << "~ " << hex <<input << endl;        
-        segSize = input & 0x0000FFFF; // sacamos los 4 bits de la derecha
-        input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
-        input <<= 2; // multiplicamos por 2^2 
-        // cout << "desde " << input<< endl;
-        // cout << "tamaño " << segSize<< endl;
-        if(Segments == 2 || Segments == 4){ //solo si es litstr o .datastr
-          if((segSize%4)!= 0 ){
-            // cout << "size no es multiplo de 4 "<< segSize << endl;
-            segSize = segSize-(segSize%4)+4; // no funciona con -=
-          // cout << "multiplo de 4 " << segSize<< endl;
-            
-          }
-        }else{
-          segSize <<= 2;    //se corre o no? se daña cuando es con string
-          // cout << "multiplicado por 4 " << segSize<< endl;
-        }
+      
 
-        // cout << "hasta " << hex << (input+segSize) << endl;
-        memorySegments[Segments] = input; //guardamos el inicio o el fin
-        Segments++;
-      }
-      // cout << "* " << input << endl;
-    }
+    }  
   }
-  size_mem= memorySegments[5]+segSize;
-
-  for(int i = 0;i<Segments;++i){
-    cout << "segmento "<< i <<" "<< hex<<memorySegments[i]<<endl;
-  }
-
-  // creamos la memoria
-  createMemory(argv[1]);
-  
-  pLitNum = (int *)(pMemg + memorySegments[1]);
-  pLitStr = (char *)(pMemg + memorySegments[2]); //Char
-  pDataNum = (int *)(pMemg + memorySegments[3]);
-  pDataStr = (char *)(pMemg + memorySegments[4]); //Char
-  pWorkLoad = (int *)(pMemg + memorySegments[5]);
-
+  myReadFileMew.close();
   // for (;;) {
   //   *(pMemg) = 1;
   //   *(pMemg+1) = 1;
@@ -105,22 +111,25 @@ int main(int argc, char** argv){
   //   sleep(3);
   // }
   
-  cout << endl;
-  myReadFileMew.close();
-  int bewFile =3; //Argument 3 -> After Memory Name
-  int argcs = argc;
-  while(argcs > 3){
-    fstream myReadFileBew(argv[bewFile],ios_base::binary|ios_base::in);
-    if (myReadFileBew.is_open()) {
-      while (!myReadFileBew.eof()) {
-	myReadFileBew.read((char*)&input,sizeof(int));
-	cout << input << endl;
-      }
-    }
-    bewFile++;
-    argcs--;
-    myReadFileBew.close();
-  }
-  cout << endl << "¡Execution Succeed!" << endl;
-  return 0;
+
+
+
+  
+  
+  // int bewFile =3; //Argument 3 -> After Memory Name
+  // int argcs = argc;
+  // while(argcs > 3){
+  //   fstream myReadFileBew(argv[bewFile],ios_base::binary|ios_base::in);
+  //   if (myReadFileBew.is_open()) {
+  //     while (!myReadFileBew.eof()) {
+	// myReadFileBew.read((char*)&input,sizeof(int));
+	// cout << input << endl;
+  //     }
+  //   }
+  //   bewFile++;
+  //   argcs--;
+  //   myReadFileBew.close();
+  // }
+  // cout << endl << "¡Execution Succeed!" << endl;
+  // return 0;
 }
