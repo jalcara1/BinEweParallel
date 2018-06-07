@@ -117,13 +117,14 @@ int main(int argc, char** argv){
           segSize &= 0x1000;
           for(int k = input; k <= segSize; ++k ){
             mapDataNum[k]=i%6; //se guarda la posicion sin salto
-            // cout <<"datanum =>"<<(int)mapDataNum[k] << endl;
+            cout <<"datanum =>"<<(int)mapDataNum[k] << endl;
           }
         }else{
           //datastring      
           for(int k = input; k <= segSize; ++k ){
             // cout << "k: "<<k<<endl;
             mapDataStr[k]=i%6; //se guarda la posicion en datanum
+            cout <<"datastr =>"<<(int)mapDataStr[k] << endl;
           }
         }
 
