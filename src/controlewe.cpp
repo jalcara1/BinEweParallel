@@ -107,24 +107,20 @@ int main(int argc, char** argv){
     for(int i = 6 ; i < 10;++i){  
       for(int j = 0; j < memg[i][1] ; ++j){     
         myReadFileMew.read((char*)&input,sizeof(int));
-        cout<<"in: "<<hex<<input<<endl;
+        
         segSize = input & 0x0000FFFF; // sacamos los 4 bits de la derecha
         input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
-        cout << input<< endl;
-        cout << segSize<< endl;
+        
         if(input >> 15 == 1){
           //datanum
           input &= 0x1000;
           segSize &= 0x1000;
           for(int k = input; k <= segSize; ++k ){
             mapDataNum[k]=i%6; //se guarda la posicion sin salto
-            cout <<"datanum =>"<<(int)mapDataNum[k] << endl;
+            // cout <<"datanum =>"<<(int)mapDataNum[k] << endl;
           }
         }else{
-          //datastring
-          cout<<"dataString"<<endl;
-          //datastring
-          cout<<"dataString"<<endl;
+          //datastring      
           for(int k = input; k <= segSize; ++k ){
             // cout << "k: "<<k<<endl;
             mapDataStr[k]=i%6; //se guarda la posicion en datanum
