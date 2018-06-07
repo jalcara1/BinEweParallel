@@ -11,12 +11,13 @@
 
 using namespace std;
 
-int *pMemg;
+char *pMemg;
 int *pLitNum; 
 char *pLitStr;
 int *pDataNum;
 char *pDataStr;
 int *pWorkLoad;
+off_t size_mem;
 
 int createMemory(char* shmname){
 
@@ -25,57 +26,25 @@ int createMemory(char* shmname){
     cerr << "Shared memory already created" << endl;
     return 1;
   }
-  off_t size_mem = 1000; // Workload -> Memory last size
+  size_mem= 1000; // Workload -> Memory last size
   if (ftruncate(shm, size_mem) == -1) {
     cerr << "Problems with memory size" << endl;
     return 1;
   }
-  char *pMem = static_cast<char*>(mmap(NULL, size_mem, PROT_READ | PROT_WRITE, MAP_SHARED, shm, 0));
-  if ((void *) pMem == (void *) -1) {
+  pMemg = static_cast<char*>(mmap(NULL, size_mem, PROT_READ | PROT_WRITE, MAP_SHARED, shm, 0));
+  if ((void *) pMemg == (void *) -1) {
     cerr << "Problems with memory map" << endl;
     return 1;
   }
-  // int *pMemg;
-  // int *pLitNum; 
-  // char *pLitStr;
-  // int *pDataNum;
-  // char *pDataStr;
-  // int *pWorkLoad;
-
-  int limInf, limSup;
-  string number,number2;
-  
-  //cambiar todo por los segmentos que son
-  // int hexa,hexa2;
-  
-  // while(cin >> setw(2) >> number){
-  //   cin >> number;
-  //   stringstream  converter(number);
-  //   converter >> hex >> hexa;
-    
-  //   cin >> setw(2) >> number2;
-  //   cin >> number2;
-  //   stringstream  converter2(number2);
-  //   converter2 >> hex >> hexa2;
-  //   hexa2 <<= 2;
-    
-  //   cout << hex << hexa << endl;
-  //   cout << hex << hexa2 << endl;
-    
-  //   if((hexa2%4)!= 0 ){
-  //     hexa2= hexa2-(hexa2%4)+4;
-  //     cout << " 2 no era multiplo " << hex << hexa2 << endl;
-  //   }
-  //   cout << "limite " <<hex << hexa+hexa2 << endl;
-  // }
   return 0;
 }
+
 int main(int argc, char** argv){
   if(argc <= 3){
     cerr << "Usage: " << argv[0] << " <MemoryName> ID.mew (ID.bew)+ " << endl;
     return 1;
   }
-  //createMemory(argv[1]);
+
   int input, Segments = 0, segSize;
   int memorySegments[6];
   fstream myReadFileMew(argv[2],ios_base::binary|ios_base::in);
@@ -83,41 +52,67 @@ int main(int argc, char** argv){
     while (!myReadFileMew.eof()) {
       myReadFileMew.read((char*)&input,sizeof(int));
       if(Segments <= 5){
-        // cout << "~ " << input << endl;
+        // cout << "~ " << hex <<input << endl;        
         segSize = input & 0x0000FFFF; // sacamos los 4 bits de la derecha
-        input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16)
+        input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
         input <<= 2; // multiplicamos por 2^2 
         cout << "desde " << input<< endl;
-        
+        // cout << "tamaño " << segSize<< endl;
         if(Segments == 2 || Segments == 4){ //solo si es litstr o .datastr
           if((segSize%4)!= 0 ){
-            cout << "size no es multiplo de 4 "<< segSize << endl;
-            segSize -= (segSize%4)+4; // no funciona con -=
+            // cout << "size no es multiplo de 4 "<< segSize << endl;
+            segSize = segSize-(segSize%4)+4; // no funciona con -=
+          // cout << "multiplo de 4 " << segSize<< endl;
+            
           }
+        }else{
+          segSize <<= 2;    //se corre o no? se daña cuando es con string
+          // cout << "multiplicado por 4 " << segSize<< endl;
         }
-        segSize <<=2;    //se corre o no? se daña cuando es con string
-        
+
         // cout << "hasta " << hex << (input+segSize) << endl;
-        memorySegments[Segments] = (input+segSize); //guardamos el inicio o el fin
-        cout << "limite " << hex << memorySegments[Segments] << endl;
+        memorySegments[Segments] = input; //guardamos el inicio o el fin
+        cout << Segments << ":"<< hex << input << endl;
         Segments++;
       }
       // cout << "* " << input << endl;
     }
   }
+  size_mem= memorySegments[5]+segSize;
+  
+  for(int i = 0;i<Segments;++i){
+    cout << "segmento "<< i <<" "<<memorySegments[i]<<endl;
+  }
+
+  // creamos la memoria
+  createMemory(argv[1]);
+  
+  pLitNum = (int *)(pMemg + memorySegments[0]);
+  pLitStr = (char *)(pMemg + memorySegments[1]); //Char
+  pDataNum = (int *)(pMemg + memorySegments[2]);
+  pDataStr = (char *)(pMemg + memorySegments[3]); //Char
+  pWorkLoad = (int *)(pMemg + memorySegments[4]);
+
+  int tam = (memorySegments[2]-memorySegments[1]);
+  cout << hex << tam << endl;
+
+  for (;;) {
+    for(int i=0;i<tam;++i){
+      cout << i << endl;
+      // *(pMemg+i) = 1;
+      // *(pLitNum+i) = 4;
+      // *(pLitStr+i) = 'a';
+      // *(pDataNum+i) = 16; 
+      // *(pDataStr+i) = 'A'; 
+      // *(pWorkLoad+i) = 32; 
+    }
 
 
+    sleep(3);
+  }
+  
 
-  //Assign Correct Value
-  cout << " AQUI " << memorySegments[0]  << endl;
-  // *pMemg = memorySegments[0];
-  // *pLitNum = memorySegments[1];
-  // *pLitStr = memorySegments[2]; //Char
-  // *pDataNum = memorySegments[3];
-  // *pDataStr = memorySegments[4]; //Char
-  // *pWorkLoad = memorySegments[5];
-
-  // cout << "- " << *pMemg;
+  // // cout << "- " << *pMemg;
   // cout << "\n-- " << *pLitNum;
   // cout << "\n--- " << *pLitStr;
   // cout << "\n---- " << *pDataNum;
