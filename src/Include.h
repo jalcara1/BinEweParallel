@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iomanip>
 #include <fstream>
+#include <map>
 
 #include <unistd.h>
 #include <sys/mman.h>

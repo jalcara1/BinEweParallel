@@ -8,45 +8,80 @@ ControlEwe::~ControlEwe(void) {
   cout << "ControlEwe Object is being deleting" << endl;
 }
 int ControlEwe::readMew() {
-  int input, Segments = 0, segSize;
-  int memorySegments[6];
+
+  unsigned int input, segSize;
+  unsigned int memg[10][2]; //variable cambiada [segmento][ 0 = inicio][1 = size]
   fstream myReadFileMew(argv[1],ios_base::binary|ios_base::in);
+  //manejo de políticas
+  // char:
+  //  0: lectores
+  //  1: escritores
+  //  2: bloqueo
+  //  3: ninguno
+  map<unsigned int,char> mapDataNum;
+  map<unsigned int,char> mapDataStr;
   if (myReadFileMew.is_open()) {
-    while (myReadFileMew.read((char*)&input,sizeof(int))){//!myReadFileMew.eof()) {
-      //myReadFileMew.read((char*)&input,sizeof(int));
-      if(Segments <= 5){
-        segSize = input & 0x0000FFFF; // sacamos los 4 bits de la derecha
+    for(int i=0;i<=5;++i){
+      myReadFileMew.read((char*)&input,sizeof(int));
+      segSize = input & 0xFFFF; // sacamos los 4 bits de la derecha
+      input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
+      input <<= 2; // multiplicamos por 2^2 
+      if(i == 2 || i == 4){ //solo si es litstr o .datastr
+        if((segSize%4)!= 0 ){
+          segSize = segSize-(segSize%4)+4; // no funciona con -=
+        }
+      }else{
+        segSize <<= 2;    //se corre o no? se daña cuando es con string
+      }
+      memg[i][0] = input; //guardamos el inicio o el fin
+      memg[i][1] = segSize; //guardamos el inicio o el fin
+    }
+    for(int i=6;i<10;++i){
+      myReadFileMew.read((char*)&input,sizeof(int));
+      segSize = input & 0xFFFF; // sacamos los 4 bits de la derecha
+      input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
+
+      memg[i][0] = input; //guardamos el inicio o el fin
+      memg[i][1] = segSize-input; //guardamos el inicio o el fin
+    }
+    for(int i = 0;i<10;++i){
+      cout << "seg:"<< i <<" ini:"<< hex <<memg[i][0]<<" tam:"<<memg[i][1]<<endl;  
+    }
+    size_mem= memg[5][0]+memg[5][1];
+    // creamos la memoria
+    createMemory(argv[0]);
+    
+    pLitNum = (int *)(pMemg + memg[1][0]);
+    pLitStr = (char *)(pMemg + memg[2][0]); //Char
+    pDataNum = (int *)(pMemg + memg[3][0]);
+    pDataStr = (char *)(pMemg + memg[4][0]); //Char
+    pWorkLoad = (int *)(pMemg + memg[5][0]);
+    
+    //almacenar los de las políticas
+    for(int i = 6 ; i < 10;++i){  
+      for(int j = 0; j < memg[i][1] ; ++j){     
+        myReadFileMew.read((char*)&input,sizeof(int));
+	segSize = input & 0x0000FFFF; // sacamos los 4 bits de la derecha
         input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
-        input <<= 2; // multiplicamos por 2^2 
-        cout << "desde " << input<< endl;
-        if(Segments == 2 || Segments == 4){ //solo si es litstr o .datastr
-          if((segSize%4)!= 0 ){
-            segSize = segSize-(segSize%4)+4; // no funciona con -=
+	if(input >> 15 == 1){
+          //datanum
+          input &= 0x1000;
+          segSize &= 0x1000;
+          for(int k = input; k <= segSize; ++k ){
+            mapDataNum[k]=i%6; //se guarda la posicion sin salto
+	    cout <<"datanum =>"<<(int)mapDataNum[k] << endl;
           }
         }else{
-          segSize <<= 2;
+          //datastring      
+          for(int k = input; k <= segSize; ++k ){
+            mapDataStr[k]=i%6; //se guarda la posicion en datanum
+	    cout <<"datastr =>"<<(int)mapDataStr[k] << endl;
+          }
         }
-        memorySegments[Segments] = input; //Saved segments end and start
-        cout << Segments << ":"<< hex << input << endl;
-        Segments++;
       }
     }
   }
-  size_mem= memorySegments[5]+segSize;
-  
-  for(int i = 0;i<Segments;++i){
-    cout << "segmento "<< i <<" "<<memorySegments[i]<<endl;
-  }
-  createMemory(argv[0]); //Memory Creating
-  
-  pLitNum = (int *)(pMemg + memorySegments[0]);
-  pLitStr = (char *)(pMemg + memorySegments[1]); //Char
-  pDataNum = (int *)(pMemg + memorySegments[2]);
-  pDataStr = (char *)(pMemg + memorySegments[3]); //Char
-  pWorkLoad = (int *)(pMemg + memorySegments[4]);
-
   myReadFileMew.close();
-
   return 0;
 }
 int ControlEwe::createMemory(char* shmname){ //Just Create The *pMem for Each InterEwe
