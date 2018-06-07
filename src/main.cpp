@@ -10,8 +10,9 @@ int main(int argc, char** argv){
   
   InterEwe Inter((argc-4), &argv[4]);
   ControlEwe Control(&argv[2]);
-  
+
+  Control.readMew(); //Read Mew.mew and Create Memory
   Inter.readBew();
-  Control.readMew();
+
   return 0;
 }
