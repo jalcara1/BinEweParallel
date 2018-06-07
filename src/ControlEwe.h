@@ -2,6 +2,7 @@
 #ifndef __ControlEwe_H_INCLUDED__   // if x.h hasn't been included yet...
 #define __ControlEwe_H_INCLUDED__   // #define this so the compiler knows it has been included
 
+#include "Include.h"
 class ControlEwe {
 
  public:
@@ -19,7 +20,7 @@ class ControlEwe {
   int *pDataNum;
   char *pDataStr;
   int *pWorkLoad;
-  //off_t *size_mem;
+  off_t size_mem; // Include Specific Library
 
 };
 

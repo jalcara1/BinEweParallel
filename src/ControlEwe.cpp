@@ -1,6 +1,5 @@
 //ControlEwe.cpp
 #include "ControlEwe.h"
-#include "Include.h"
 
 ControlEwe::ControlEwe(char** argvs) : argv(argvs)  {
   cout << "ControlEwe Object is being created" << endl;
@@ -13,8 +12,8 @@ int ControlEwe::readMew() {
   int memorySegments[6];
   fstream myReadFileMew(argv[1],ios_base::binary|ios_base::in);
   if (myReadFileMew.is_open()) {
-    while (!myReadFileMew.eof()) {
-      myReadFileMew.read((char*)&input,sizeof(int));
+    while (myReadFileMew.read((char*)&input,sizeof(int))){//!myReadFileMew.eof()) {
+      //myReadFileMew.read((char*)&input,sizeof(int));
       if(Segments <= 5){
         segSize = input & 0x0000FFFF; // sacamos los 4 bits de la derecha
         input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
@@ -33,12 +32,12 @@ int ControlEwe::readMew() {
       }
     }
   }
-  //size_mem= memorySegments[5]+segSize;
+  size_mem= memorySegments[5]+segSize;
   
   for(int i = 0;i<Segments;++i){
     cout << "segmento "<< i <<" "<<memorySegments[i]<<endl;
   }
-  createMemory(argv[1]); //Memory Creating
+  createMemory(argv[0]); //Memory Creating
   
   pLitNum = (int *)(pMemg + memorySegments[0]);
   pLitStr = (char *)(pMemg + memorySegments[1]); //Char
@@ -50,13 +49,14 @@ int ControlEwe::readMew() {
 
   return 0;
 }
-int ControlEwe::createMemory(char* shmname){
+int ControlEwe::createMemory(char* shmname){ //Just Create The *pMem for Each InterEwe
   int shm = shm_open(shmname, O_CREAT | O_RDWR | O_EXCL, 0600);
   if (shm == -1) {
     cerr << "Shared memory already created" << endl;
+    // $ man shm_open # Read Manual
     return 1;
   }
-  off_t size_mem= 1000; // Workload -> Memory last size
+  size_mem= 1000; // Workload -> Memory last size
   if (ftruncate(shm, size_mem) == -1) {
     cerr << "Problems with memory size" << endl;
     return 1;
