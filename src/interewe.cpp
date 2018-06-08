@@ -12,6 +12,11 @@
 #include <map>
 #include "InterEwe.h"
 
+#include <stdio.h>
+#include <algorithm>
+#include <iterator>
+#include <vector>
+
 using namespace std;
 
 char *pMemg;
@@ -37,37 +42,63 @@ int  assignMemory(char* shmname) {
 
 int main(int argc, char** argv){
     fstream myReadFileBew(argv[2],ios_base::binary|ios_base::in);
-    int cont=0;
-    int opcode,memAdr,intAdr;
-    unsigned char input;
-    if (myReadFileBew.is_open()) {
-        //while (!myReadFileBew.eof()) {
-        while (myReadFileBew.read((char*)&input,sizeof(unsigned char))) {
-            //myReadFileBew.read((char*)&input,sizeof(int));
-            // cout<<hex<<input<<" ";
+
+    unsigned char opcode;
+    unsigned long long addr;
+    unsigned char input,aux;
+    unsigned short memref, intAddr;
+    
+    if (myReadFileBew.is_open()){
+        while (myReadFileBew.read((char*)&input,sizeof(unsigned char))) {   
+            // cout << hex <<input << endl;
             opcode = input >> 4;
-            cout << opcode ;
+            addr = input & 0xF;
             switch (opcode) {
                 case 0:
-                    myReadFileBew.read((char*)&input,sizeof(unsigned char))
-                break;
-                case c:
-                // Code
-                break;
+                    cout << "op: 0000" << endl;
+                    for(int i=0;i<7;++i){
+                        myReadFileBew.read((char*)&aux,sizeof(unsigned char));
+                        addr <<= 8;
+                        addr |= aux;
+                    }
+                    // printf("mem address: %#08x\n",addr);
+                    cout << "address 64:" <<hex << addr << endl;
+                    addr >>= 30; //borra pad
+                    memref =  addr >> 15;
+                    intAddr = addr & 0x7fff;
+
+                    cout << "memref:"<<hex<<memref<<endl;
+                    cout << "intAddr:"<<hex<<intAddr<<endl;
+                    // hacer lo que debe hacer
+                    break;
+                case 1:
+                    // cout << "op: 0001" << endl;
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    break;
+                case 8:
+                    break;
+                case 9:
+                    break;
+                case 10:
+                    break;
                 default:
-                // Code
-                break;
+                    break;
+
             }
-
-
-            cout<<hex<<input << endl;
-        
-            
         }
     }
     myReadFileBew.close();
-    assignMemory(argv[1]);
-
-
+    // assignMemory(argv[1]);
     return 0;
 }
