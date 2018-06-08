@@ -1,14 +1,13 @@
 //InterEwe.cpp
 #include "InterEwe.h"
 
-InterEwe::InterEwe(char** argvs) : argv(argvs)  {
+InterEwe::InterEwe(char** argvs) : argv(argvs) {
   cout << "InterEwe Object is being created" << endl;
 }
 InterEwe::~InterEwe(void) {
-  cout << "InterEwe Object is being deleting" << endl;
+  cout << "InterEwe Object is being deleting" << endl;  
 }
 int InterEwe::readBew(char* shmname, int file) {
-  //int bewFile =3; //Argument 3 -> After Memory Name
   fstream myReadFileBew(argv[file],ios_base::binary|ios_base::in);
   int input;
   if (myReadFileBew.is_open()) {
@@ -35,5 +34,3 @@ int InterEwe::assignMemory(char* shmname) {
   cout << "Shared memory already assigned"  << endl;
   return 0;
 }
-
-
