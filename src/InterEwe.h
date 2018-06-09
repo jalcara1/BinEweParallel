@@ -12,12 +12,13 @@ class InterEwe {
  private:
   char** argv;
 
+  off_t size_mem;
   char *pMemg;
   int *pLitNum;
   char *pLitStr;
   int *pDataNum;
   char *pDataStr;
-  //int *pWorkLoad; //Type
+  sem_t *pWorkLoad; //Semaphore Type 
 };
 
 #endif 

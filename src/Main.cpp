@@ -15,7 +15,7 @@ int main(int argc, char** argv){
   
   Control.readMew(); //Read Mew.mew and Create Memory
 
-  pid_t processes[BinEwe];
+  pid_t processes[BinEwe]; // Run With Exec -> As a Bash Command
   for(int file =0; file< BinEwe; ++file){
     if ((processes[file] = ::fork()) == 0) {
       //cout << "Child: " << processes[file]  << endl;

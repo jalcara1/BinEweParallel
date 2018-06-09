@@ -6,7 +6,8 @@
 #include <map>
 
 #include <sys/types.h>
-#include <sys/mman.h> 
+#include <semaphore.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
