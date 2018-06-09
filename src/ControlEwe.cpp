@@ -33,29 +33,28 @@ int ControlEwe::readMew() {
       }else{
         segSize <<= 2;    //se corre o no? se daña cuando es con string
       }
-      memg[i][0] = input; //guardamos el inicio o el fin
-      memg[i][1] = segSize; //guardamos el inicio o el fin
+      memg[i][0] = input; //guardamos el inicio del segmento
+      memg[i][1] = segSize; //guardamos el tamaño del segmento
     }
     for(int i=6;i<10;++i){
       myReadFileMew.read((char*)&input,sizeof(int));
       segSize = input & 0xFFFF; // sacamos los 4 bits de la derecha
       input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
 
-      memg[i][0] = input; //guardamos el inicio o el fin
-      memg[i][1] = segSize-input; //guardamos el inicio o el fin
+      memg[i][0] = input; //guardamos politicas gestion
+      memg[i][1] = segSize-input; //guardamos tamaño de la politica
     }
     for(int i = 0;i<10;++i){
-      cout << "seg:"<< i <<" ini:"<< hex <<memg[i][0]<<" tam:"<<memg[i][1]<<endl;  
+      cout << "seg:"<< i <<" ini:"<< hex <<memg[i][0]<<" tam: "<<memg[i][1]<<endl;  
     }
-    size_mem= memg[5][0]+memg[5][1];
-    // creamos la memoria
-    createMemory(argv[0]);
+    size_mem= memg[5][0]+memg[5][1]; //Tamaño de la memoria = ultima posicion de WorkLoad
+    createMemory(argv[0]); // creamos la memoria
     
     pLitNum = (int *)(pMemg + memg[1][0]);
     pLitStr = (char *)(pMemg + memg[2][0]); //Char
     pDataNum = (int *)(pMemg + memg[3][0]);
     pDataStr = (char *)(pMemg + memg[4][0]); //Char
-    pWorkLoad = (int *)(pMemg + memg[5][0]);
+    pWorkLoad = (sem_t*)(int *)(pMemg + memg[5][0]);
     
     //almacenar los de las políticas
     for(int i = 6 ; i < 10;++i){  
@@ -91,7 +90,7 @@ int ControlEwe::createMemory(char* shmname){ //Just Create The *pMem for Each In
     // $ man shm_open # Read Manual
     return 1;
   }
-  size_mem= 1000; // Workload -> Memory last size
+  //size_mem= 1000; // Workload -> Memory last size
   if (ftruncate(shm, size_mem) == -1) {
     cerr << "Problems with memory size" << endl;
     return 1;
