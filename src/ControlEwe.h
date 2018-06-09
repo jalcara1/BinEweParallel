@@ -7,18 +7,23 @@ class ControlEwe {
  public:
   int readMew();
   int createMemory(char* shmname);
+  int getSize(int addr);
+  int getBase(int addr);
+
   ControlEwe(char** argv); // This is the constructor declaration
   ~ControlEwe(); // This is the destructor: declaration
  private:
   char** argv;
 
   off_t size_mem; // Include Specific Library
-  char *pMemg;
-  int *pLitNum; 
-  char *pLitStr;
-  int *pDataNum;
-  char *pDataStr;
-  sem_t *pWorkLoad; //Semaphore Type
+  unsigned char *pMem;
+  unsigned int *pMemg;
+  unsigned int *pLitNum; 
+  unsigned char *pLitStr;
+  unsigned int *pDataNum;
+  unsigned char *pDataStr;
+  //sem_t *pWorkLoad; //Semaphore Type
+  unsigned int *pWorkLoad;
 };
 
 #endif 

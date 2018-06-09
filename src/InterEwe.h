@@ -5,20 +5,22 @@
 #include "Include.h"
 class InterEwe {
  public:
-  int readBew(char* shmname, int file);
+  int readBew(char* shmname, char* file);
   int assignMemory(char* shmname);
-  InterEwe(char** argv); // This is the constructor declaration
+  InterEwe(); // This is the constructor declaration
   ~InterEwe(); // This is the destructor: declaration
  private:
   char** argv;
 
   off_t size_mem;
-  char *pMemg;
-  int *pLitNum;
-  char *pLitStr;
-  int *pDataNum;
-  char *pDataStr;
-  sem_t *pWorkLoad; //Semaphore Type 
+  unsigned int *pMemg;
+  unsigned char *pMem;
+  unsigned int *pLitNum;
+  unsigned char *pLitStr;
+  unsigned int *pDataNum;
+  unsigned char *pDataStr;
+  //sem_t *pWorkLoad; //Semaphore Type
+  unsigned int *pWorkLoad;
 };
 
 #endif 

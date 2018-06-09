@@ -1,4 +1,4 @@
-//ControlEwe.cpp
+//Controlewe.cpp
 #include "ControlEwe.h"
 
 ControlEwe::ControlEwe(char** argvs) : argv(argvs)  {
@@ -8,97 +8,72 @@ ControlEwe::~ControlEwe(void) {
   cout << "ControlEwe Object is being deleting" << endl;
 }
 int ControlEwe::readMew() {
-
-  unsigned int input, segSize;
-  unsigned int memg[10][2]; //variable cambiada [segmento][ 0 = inicio][1 = size]
+  unsigned int input, memgSize;
+  unsigned char leer;
   fstream myReadFileMew(argv[1],ios_base::binary|ios_base::in);
-  //manejo de políticas
-  // char:
-  //  0: lectores
-  //  1: escritores
-  //  2: bloqueo
-  //  3: ninguno
-  map<unsigned int,char> mapDataNum;
-  map<unsigned int,char> mapDataStr;
   if (myReadFileMew.is_open()) {
-    for(int i=0;i<=5;++i){
-      myReadFileMew.read((char*)&input,sizeof(int));
-      segSize = input & 0xFFFF; // sacamos los 4 bits de la derecha
-      input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
-      input <<= 2; // multiplicamos por 2^2 
-      if(i == 2 || i == 4){ //solo si es litstr o .datastr
-        if((segSize%4)!= 0 ){
-          segSize = segSize-(segSize%4)+4; // no funciona con -=
-        }
-      }else{
-        segSize <<= 2;    //se corre o no? se daña cuando es con string
-      }
-      memg[i][0] = input; //guardamos el inicio del segmento
-      memg[i][1] = segSize; //guardamos el tamaño del segmento
+    myReadFileMew.read((char*)&input,sizeof(unsigned int));
+    memgSize = getSize(input); // .memg size
+    unsigned int memg[memgSize];
+    memg[0] = input;
+    for(int i = 1;i<memgSize;++i){
+      myReadFileMew.read((char*)&input,sizeof(unsigned int));
+      memg[i] = input;
     }
-    for(int i=6;i<10;++i){
-      myReadFileMew.read((char*)&input,sizeof(int));
-      segSize = input & 0xFFFF; // sacamos los 4 bits de la derecha
-      input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
-
-      memg[i][0] = input; //guardamos politicas gestion
-      memg[i][1] = segSize-input; //guardamos tamaño de la politica
+    // calcular tamaño memoria
+    input = memg[5];
+    size_mem = getBase(input)+ getSize(input);  // inicio workload + tamaño
+    if(createMemory(argv[0])){ // crear memoria
+      cerr << "Error: la memoria "<<argv[1]<<" ha creada anteriormente"<<endl;
+      return 1;
     }
-    for(int i = 0;i<10;++i){
-      cout << "seg:"<< i <<" ini:"<< hex <<memg[i][0]<<" tam: "<<memg[i][1]<<endl;  
+    // escribir en memoria
+    for(int i = 0; i< memgSize;++i){
+      *(pMemg+i) = memg[i];
     }
-    size_mem= memg[5][0]+memg[5][1]; //Tamaño de la memoria = ultima posicion de WorkLoad
-    createMemory(argv[0]); // creamos la memoria
-    
-    pLitNum = (int *)(pMemg + memg[1][0]);
-    pLitStr = (char *)(pMemg + memg[2][0]); //Char
-    pDataNum = (int *)(pMemg + memg[3][0]);
-    pDataStr = (char *)(pMemg + memg[4][0]); //Char
-    pWorkLoad = (sem_t*)(int *)(pMemg + memg[5][0]);
-    
-    //almacenar los de las políticas
-    for(int i = 6 ; i < 10;++i){  
-      for(int j = 0; j < memg[i][1] ; ++j){     
-        myReadFileMew.read((char*)&input,sizeof(int));
-	segSize = input & 0x0000FFFF; // sacamos los 4 bits de la derecha
-        input >>= 16; //sacamos los 4 bits de la izquierda (correrlo 16 bits)
-	if(input >> 15 == 1){
-          //datanum
-          input &= 0x1000;
-          segSize &= 0x1000;
-          for(int k = input; k <= segSize; ++k ){
-            mapDataNum[k]=i%6; //se guarda la posicion sin salto
-	    //cout <<"datanum =>"<<(int)mapDataNum[k] << endl;
-          }
-        }else{
-          //datastring      
-          for(int k = input; k <= segSize; ++k ){
-            mapDataStr[k]=i%6; //se guarda la posicion en datanum
-	    //cout <<"datastr =>"<<(int)mapDataStr[k] << endl;
-          }
-        }
-      }
+    // crear punteros
+    pLitNum = (unsigned int *)(pMem + getBase(memg[1]));
+    pLitStr = (unsigned char *)(pMem + getBase(memg[2])); //Char
+    pDataNum = (unsigned int *)(pMem + getBase(memg[3]));
+    pDataStr = (unsigned char *)(pMem + getBase(memg[4])); //Char
+    pWorkLoad = (unsigned int *)(pMem + getBase(memg[5]));
+    // escribir litnum
+    for(int i = 0; i<getSize(memg[1]);++i){
+      myReadFileMew.read((char*)&input,sizeof(unsigned int));
+      *(pLitNum+i) = input;
+    }
+    // escribit litstring
+    for(int i = 0; i<getSize(memg[2]);++i){
+      myReadFileMew.read((char*)&leer,sizeof(unsigned char));
+      *(pLitStr+i) = leer;
     }
   }
   myReadFileMew.close();
   return 0;
 }
 int ControlEwe::createMemory(char* shmname){ //Just Create The *pMem for Each InterEwe
+  size_mem = 1000;
   int shm = shm_open(shmname, O_CREAT | O_RDWR | O_EXCL, 0600);
   if (shm == -1) {
     cerr << "Shared memory already created" << endl;
-    // $ man shm_open # Read Manual
     return 1;
-  }
-  //size_mem= 1000; // Workload -> Memory last size
+  }    // $ man shm_open # Read Manual
   if (ftruncate(shm, size_mem) == -1) {
     cerr << "Problems with memory size" << endl;
     return 1;
   }
-  pMemg = static_cast<char*>(mmap(NULL, size_mem, PROT_READ | PROT_WRITE, MAP_SHARED, shm, 0));
-  if ((void *) pMemg == (void *) -1) {
+  //size_mem= 1000; // Workload -> Memory last size
+  pMem = static_cast<unsigned char*>(mmap(NULL, size_mem, PROT_READ | PROT_WRITE, MAP_SHARED, shm, 0));
+  if ((void *) pMem == (void *) -1) {
     cerr << "Problems with memory map" << endl;
     return 1;
   }
+  pMemg = (unsigned int *)pMem;
   return 0;
+}
+int ControlEwe::getSize(int addr){
+  return (addr & 0xFFFF);
+}
+int ControlEwe::getBase(int addr){
+  return ((addr >> 16) << 2);
 }
