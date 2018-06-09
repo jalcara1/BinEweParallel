@@ -10,16 +10,15 @@
 
 #include <map>
 
-
 using namespace std;
 
-unsigned char  *pMem,*pLitStr, *pDataStr;
-unsigned int  *pMemg,*pLitNum, *pDataNum, *pWorkLoad; 
+unsigned char *pMem,*pLitStr, *pDataStr;
+unsigned int *pMemg,*pLitNum, *pDataNum, *pWorkLoad; 
 
 off_t size_mem;
 
 int createMemory(char* shmname){
-
+  size_mem = 1000;
   int shm = shm_open(shmname, O_CREAT | O_RDWR | O_EXCL, 0600);
   if (shm == -1) {
     cerr << "Shared memory already created" << endl;
@@ -92,7 +91,6 @@ int main(int argc, char** argv){
     pDataNum = (unsigned int *)(pMem + getBase(memg[3]));
     pDataStr = (unsigned char *)(pMem + getBase(memg[4])); //Char
     pWorkLoad = (unsigned int *)(pMem + getBase(memg[5]));
-
 
     // escribir litnum
     for(int i = 0; i<getSize(memg[1]);++i){

@@ -10,28 +10,32 @@
 
 using namespace std;
 
-char *pMemg;
-int *pLitNum; 
-char *pLitStr;
-int *pDataNum;
-char *pDataStr;
-int *pWorkLoad;
+unsigned char *pMem,*pLitStr, *pDataStr;
+unsigned int *pMemg,*pLitNum, *pDataNum, *pWorkLoad; 
+
 off_t size_mem;
 
 int  assignMemory(char* shmname) {
   int shm = shm_open(shmname, O_RDWR , 0600);
   off_t size_mem= 1000;
-  pMemg = static_cast<char*>(mmap(NULL, size_mem, PROT_READ | PROT_WRITE, MAP_SHARED, shm, 0));
+  pMem = static_cast<unsigned char*>(mmap(NULL, size_mem, PROT_READ | PROT_WRITE, MAP_SHARED, shm, 0));
     
   if ((void *) pMemg == (void *) -1) {
     cerr << "Problems with memory map" << endl;
     return 1;
   }
   cout << "Shared memory already assigned"  << endl;
+  pMemg = (unsigned int *)pMem;
   return 0;
 }
 
 int main(int argc, char** argv){
+    if(assignMemory(argv[2])){
+       cerr<<"error"<<endl;
+       return 1; 
+    }else{
+        *(pMemg+0x3c) = 0xFF;
+    }
     fstream myReadFileBew(argv[2],ios_base::binary|ios_base::in);
     int cont =0;
     unsigned long long addr;
