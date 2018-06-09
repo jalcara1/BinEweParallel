@@ -11,7 +11,6 @@
 
 #include <map>
 // #include "InterEwe.h"
-
 #include <stdio.h>
 #include <algorithm>
 #include <iterator>
@@ -45,7 +44,7 @@ int main(int argc, char** argv){
     int cont =0;
     unsigned long long addr;
     unsigned char input,aux,opcode,op;
-    unsigned short memref, intAddr, strAddr,src,dest,oper1,oper2;
+    unsigned short memref, intAddr, strAddr,src,dest,oper1,oper2,mrSize;
     bool dataNum; // 1 = palabra(32 bits), 0 = char (8 bits)
 
     if (myReadFileBew.is_open()){
@@ -67,8 +66,9 @@ int main(int argc, char** argv){
                     
                     cout << "address:" <<hex << addr << endl;
                     addr >>= 30; //borra pad
-                    memref =  addr >> 15;
                     intAddr = addr & 0x7FFF;
+                    memref =  addr >> 15;
+
 
                     cout << "memref:"<<hex<<memref<<endl;
                     cout << "intAddr:"<<hex<<intAddr<<endl;
@@ -81,10 +81,10 @@ int main(int argc, char** argv){
                         addr <<= 8;
                         addr |= aux;
                     }
-                    cout << "address 64:" <<hex << addr << endl;
+                    cout << "address:" <<hex << addr << endl;
                     addr >>= 30; //borra pad
-                    memref =  addr >> 15;
                     strAddr = addr & 0x7FFF;
+                    memref =  addr >> 15;
                     
                     cout << "memref:"<<hex<<memref<<endl;
                     cout << "strAddr:"<<hex<<strAddr<<endl;
@@ -100,8 +100,8 @@ int main(int argc, char** argv){
                     
                     cout << "address:" <<hex << addr << endl;
                     addr >>= 30; //borra pad
-                    memref =  addr >> 15;
                     intAddr = addr & 0x7FFF;
+                    memref =  addr >> 15;
 
                     cout << "memref:"<<hex<<memref<<endl;
                     cout << "intAddr:"<<hex<<intAddr<<endl;
@@ -129,7 +129,7 @@ int main(int argc, char** argv){
                     addr >>= 29 ; //borra pad
                     src = addr & 0x7FFF;
                     dest = (addr >> 15) & 0x7FFF;
-                    dataNum = addr >>16;
+                    dataNum = addr >> 30;
                     
                     if(dataNum){
                         //datanum
@@ -149,8 +149,8 @@ int main(int argc, char** argv){
                     addr >>= 11 ; //borra pad
                     
                     oper2 = addr & 0x7FFF;
-                    oper1 = (addr>>15) & 0x7FFF;
-                    dest = (addr>>30) & 0x7FFF;
+                    oper1 = (addr >> 15) & 0x7FFF;
+                    dest = (addr >> 30) & 0x7FFF;
                     addr >>= 45;
                     dataNum= addr & 1;
                     op = addr >> 1;
@@ -158,13 +158,51 @@ int main(int argc, char** argv){
 
                     break;
                 case 6:
-                    cout << "op:"<<code<< endl;
+                    for(int i=0;i<7;++i){
+                        myReadFileBew.read((char*)&aux,sizeof(unsigned char));
+                        addr <<= 8;
+                        addr |= aux;
+                    }
+                    cout << "address:" <<hex << addr << endl;
+                    addr >>= 14;
+                    intAddr = addr & 0X7FFF;
+                    src = (addr >> 15) & 0X7FFF;
+                    dest = (addr>>30) & 0X7FFF;
+                    dataNum = addr >> 45;
+                    if(dataNum){
+
+                    }else{
+                        
+                    }
                     break;
                 case 7:
-                    cout << "op:"<<code<< endl;        
+                    cout << "op:"<<code<< endl;                          
+                    for(int i=0;i<7;++i){
+                        myReadFileBew.read((char*)&aux,sizeof(unsigned char));
+                        addr <<= 8;
+                        addr |= aux;
+                    }
+                    cout << "address:" <<hex << addr << endl;
+                    addr >>= 14;
+                    src= addr & 0X7FFF;
+                    intAddr = (addr >> 15) & 0X7FFF;
+                    dest = (addr >> 30) & 0X7FFF;
+                    dataNum = addr >> 45;
+                    if(dataNum){
+
+                    }else{
+                        
+                    }  
                     break;
                 case 8:
                     cout << "op:"<<code<< endl;
+                    for(int i=0;i<3;++i){
+                        myReadFileBew.read((char*)&aux,sizeof(unsigned char));
+                        addr <<= 8;
+                        addr |= aux;
+                    }
+                    cout << "address:" <<hex << addr << endl;
+                    memref = addr >> 13;
                     break;
                 case 9:
                     cout << "op:"<<code<< endl;             
@@ -174,21 +212,61 @@ int main(int argc, char** argv){
                         addr |= aux;
                     }
                     cout << "address:" <<hex << addr << endl;
-
-                    
+                    memref = addr >> 13;
                     break;
                 case 10:
                     cout << "op:"<<code<< endl;
+                    for(int i=0;i<7;++i){
+                        myReadFileBew.read((char*)&aux,sizeof(unsigned char));
+                        addr <<= 8;
+                        addr |= aux;
+                    }
+                    cout << "address:" <<hex << addr << endl;
+                    addr >>= 30; //borra pad
+                    mrSize = addr & 0x7FFF;
+                    dest =  addr >> 15;
+
+                    cout << "dest:" << hex << dest << endl;
+                    cout << "mrSize:" << hex << mrSize <<endl;
+                    // hacer lo que debe hacer
                     break;
                 case 11:
-                    cout << "op:"<<code<< endl;
+                    cout << "op:"<<code<< endl;     
+                    for(int i=0;i<3;++i){
+                        myReadFileBew.read((char*)&aux,sizeof(unsigned char));
+                        addr <<= 8;
+                        addr |= aux;
+                    }
+                    cout << "address:" <<hex << addr << endl;
+                    memref = addr >> 13;
                     break;
                 case 12:
-                    cout << "op:"<<code<< endl;
+                    cout << "op:"<<code<< endl;     
+                    for(int i=0;i<3;++i){
+                        myReadFileBew.read((char*)&aux,sizeof(unsigned char));
+                        addr <<= 8;
+                        addr |= aux;
+                    }
+                    cout << "address:" <<hex << addr << endl;
+                    intAddr = addr >> 13;
                     break;
                 case 13:
                     cout << "op:"<<code<< endl;
-                    break;
+                    cout << "op:"<<code<< endl;
+                    for(int i=0;i<7;++i){
+                        myReadFileBew.read((char*)&aux,sizeof(unsigned char));
+                        addr <<= 8;
+                        addr |= aux;
+                    }
+                    cout << "address:" <<hex << addr << endl;
+                    addr >>= 11 ; //borra pad
+                    
+                    intAddr = addr & 0x7FFF;
+                    oper2 = (addr>>15) & 0x7FFF;
+                    oper1 = (addr>>30) & 0x7FFF;
+                    addr >>= 45;
+                    dataNum= addr & 1;
+                    op = addr >> 1;
                 case 14:
                     cout << "op:"<<code<< endl;
                     break;
