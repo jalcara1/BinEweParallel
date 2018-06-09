@@ -1,20 +1,12 @@
 #include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <fstream>
+#include <iomanip> //hex
+#include <fstream> //leer
 
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
-
-#include <map>
-// #include "InterEwe.h"
-#include <stdio.h>
-#include <algorithm>
-#include <iterator>
-#include <vector>
 
 using namespace std;
 
