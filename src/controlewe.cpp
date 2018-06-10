@@ -37,11 +37,11 @@ int createMemory(char* shmname){
   return 0;
 }
 
-int getSize(int addr){
+int getSize(unsigned int addr){
   return (addr & 0xFFFF);
 }
 
-int getBase(int addr){
+int getBase(unsigned int addr){
   return ((addr >> 16) << 2);
 }
 
@@ -59,6 +59,7 @@ int main(int argc, char** argv){
   
   if (myReadFileMew.is_open()) {
     myReadFileMew.read((char*)&input,sizeof(unsigned int));
+    
     memgSize = getSize(input); // tamaño de memg
     unsigned int memg[memgSize]; 
     memg[0] = input; 
