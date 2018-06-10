@@ -49,7 +49,8 @@ int main(int argc, char** argv){
     int cont = 0,code;
     unsigned long long addr;
     unsigned char input,opcode,op;
-    unsigned short memref, intAddr, strAddr,src,dest,oper1,oper2,mrSize;
+    unsigned short memref, intAddr, strAddr,src,dest,oper1Addr,oper2Addr,mrSize;
+    unsigned int oper1, oper2;
     bool dataNum; // 1 = palabra(32 bits), 0 = char (8 bits)
     
     assignMemory(argv[2]);
@@ -65,7 +66,6 @@ int main(int argc, char** argv){
     
     if (myReadFileBew.is_open()){
         while (myReadFileBew.read((char*)&input,sizeof(unsigned char))) {   
-            // cout << hex <<input << endl;
             cont++;
             cout <<"instrucción: "<<cont<<endl;
             opcode = input >> 4;
@@ -78,7 +78,8 @@ int main(int argc, char** argv){
                         myReadFileBew.read((char*)&input,sizeof(unsigned char));
                         addr <<= 8;
                         addr |= input;
-                    }     
+                    }
+                    addr >>= 30; //borra pad     
                     break;
                 case 1:
                     cout << "op:"<<code<< endl;
@@ -87,6 +88,7 @@ int main(int argc, char** argv){
                         addr <<= 8;
                         addr |= input;
                     }
+                    addr >>= 30; //borra pad
                     break;
                 case 2:
                     cout << "op:"<<code<< endl;
@@ -94,7 +96,8 @@ int main(int argc, char** argv){
                         myReadFileBew.read((char*)&input,sizeof(unsigned char));
                         addr <<= 8;
                         addr |= input;
-                    }            
+                    }  
+                    addr >>= 30; //borra pad          
                     break;
                 case 3:
                     cout << "op:"<<code<< endl;
@@ -103,6 +106,7 @@ int main(int argc, char** argv){
                         addr <<= 8;
                         addr |= input;
                     }
+                    memref = addr >> 13; //borra pad
                     break;
                 case 4:
                     cout << "op:"<<code<< endl;
@@ -111,6 +115,7 @@ int main(int argc, char** argv){
                         addr <<= 8;
                         addr |= input;
                     }
+                    addr >>= 29 ; //borra pad
                     break;
                 case 5:
                     cout << "op:"<<code<< endl;
@@ -119,6 +124,7 @@ int main(int argc, char** argv){
                         addr <<= 8;
                         addr |= input;
                     }
+                    addr >>= 11 ; //borra pad
                     break;
                 case 6:
                     for(int i=0;i<7;++i){
@@ -126,6 +132,7 @@ int main(int argc, char** argv){
                         addr <<= 8;
                         addr |= input;
                     }
+                    addr >>= 14;
                     break;
                 case 7:
                     cout << "op:"<<code<< endl;                          
@@ -133,7 +140,8 @@ int main(int argc, char** argv){
                         myReadFileBew.read((char*)&input,sizeof(unsigned char));
                         addr <<= 8;
                         addr |= input;
-                    }                
+                    }               
+                    addr >>=14; 
                     break;
                 case 8:
                     cout << "op:"<<code<< endl;
@@ -141,7 +149,8 @@ int main(int argc, char** argv){
                         myReadFileBew.read((char*)&input,sizeof(unsigned char));
                         addr <<= 8;
                         addr |= input;
-                    }                    
+                    }            
+                    addr >>= 13;       
                     break;
                 case 9:
                     cout << "op:"<<code<< endl;             
@@ -150,14 +159,17 @@ int main(int argc, char** argv){
                         addr <<= 8;
                         addr |= input;
                     }
+                    addr >>= 13;      
                     break;
+                    
                 case 10:
                     cout << "op:"<<code<< endl;
                     for(int i=0;i<7;++i){
                         myReadFileBew.read((char*)&input,sizeof(unsigned char));
                         addr <<= 8;
                         addr |= input;
-                    }                                
+                    }
+                    addr >>= 30; //borra pad                                
                     break;
                 case 11:
                     cout << "op:"<<code<< endl;     
@@ -165,7 +177,8 @@ int main(int argc, char** argv){
                         myReadFileBew.read((char*)&input,sizeof(unsigned char));
                         addr <<= 8;
                         addr |= input;
-                    }                
+                    }      
+                    addr >>= 13;            
                     break;
                 case 12:
                     cout << "op:"<<code<< endl;     
@@ -173,7 +186,8 @@ int main(int argc, char** argv){
                         myReadFileBew.read((char*)&input,sizeof(unsigned char));
                         addr <<= 8;
                         addr |= input;
-                    }                
+                    }  
+                    addr >>= 13;                
                     break;
                 case 13:
                     cout << "op:"<<code<< endl;
@@ -182,6 +196,7 @@ int main(int argc, char** argv){
                         addr <<= 8;
                         addr |= input;
                     }
+                    addr >>= 11 ; //borra pad
                     break;
                 case 14:
                     cout << "op:"<<code<< endl;
@@ -199,6 +214,7 @@ int main(int argc, char** argv){
             opcodes.push_back(opcode);
         }    
         cout << endl;
+        
         for(int i = 0; i<instructions.size();++i){
             code = opcodes[i];
             cout << "opcode "<<hex << code << " ";
@@ -216,16 +232,14 @@ int main(int argc, char** argv){
             cout << "address:" <<hex << addr << endl;
             
             switch (opcode) {
-                case 0:                                    
-                    addr >>= 30; //borra pad
+                case 0:                                                        
                     intAddr = addr & 0x7FFF;
                     memref =  addr >> 15;
                     cout << "memref:"<<hex<<memref<<endl;
                     cout << "intAddr:"<<hex<<intAddr<<endl;
                     *(pDataNum + memref) = *(pLitNum + intAddr);                    
                     break;
-                case 1:        
-                    addr >>= 30; //borra pad
+                case 1:                            
                     strAddr = addr & 0x7FFF;
                     memref =  addr >> 15;
                     cout << "memref:"<<hex<<memref<<endl;
@@ -240,7 +254,6 @@ int main(int argc, char** argv){
                     }
                     break;
                 case 2:                
-                    addr >>= 30; //borra pad
                     intAddr = addr & 0x7FFF;
                     memref =  addr >> 15;
 
@@ -249,12 +262,10 @@ int main(int argc, char** argv){
                     
                     *(pDataNum + memref) = i+*(pLitNum+intAddr);
                     break;
-                case 3:
-                    memref = addr >> 13; //borra pad
+                case 3:                
                     i = *(pDataNum+memref);
                     break;
-                case 4:
-                    addr >>= 29 ; //borra pad
+                case 4:                    
                     src = addr & 0x7FFF;
                     dest = (addr >> 15) & 0x7FFF;
                     dataNum = addr >> 30;
@@ -272,21 +283,28 @@ int main(int argc, char** argv){
                     }
 
                     break;
-                case 5:
-                    addr >>= 11 ; //borra pad
-                    
-                    oper2 = addr & 0x7FFF;
-                    oper1 = (addr >> 15) & 0x7FFF;
+                case 5:                                        
+                    oper2Addr = addr & 0x7FFF;
+                    oper1Addr = (addr >> 15) & 0x7FFF;
                     dest = (addr >> 30) & 0x7FFF;
                     addr >>= 45;
                     dataNum= addr & 1;
                     op = addr >> 1;
 
                     
+                    if(dataNum){
+                        oper1 = *(pDataNum + oper1Addr);
+                        oper2 = *(pDataNum + oper1Addr);
+                        switch(op):
+
+                    }else{
+
+                    }
+                    
 
                     break;  
                 case 6:
-                    addr >>= 14;
+                    
                     intAddr = addr & 0X7FFF;
                     src = (addr >> 15) & 0X7FFF;
                     dest = (addr>>30) & 0X7FFF;
@@ -309,13 +327,13 @@ int main(int argc, char** argv){
                     }  
                     break;
                 case 8:                
-                    memref = addr >> 13;
+                    memref = addr;
                     break;
                 case 9:
-                    memref = addr >> 13;
+                    memref = addr;
                     break;
                 case 10:
-                    addr >>= 30; //borra pad
+                    
                     mrSize = addr & 0x7FFF;
                     dest =  addr >> 15;
 
@@ -324,14 +342,12 @@ int main(int argc, char** argv){
                     // hacer lo que debe hacer
                     break;
                 case 11:                    
-                    memref = addr >> 13;
+                    memref = addr;
                     break;
                 case 12:                
-                    intAddr = addr >> 13;
+                    intAddr = addr;
                     break;
-                case 13:                    
-                    addr >>= 11 ; //borra pad
-                    
+                case 13:                                                            
                     intAddr = addr & 0x7FFF;
                     oper2 = (addr>>15) & 0x7FFF;
                     oper1 = (addr>>30) & 0x7FFF;
