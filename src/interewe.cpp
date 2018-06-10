@@ -50,11 +50,10 @@ int main(int argc, char** argv){
     unsigned long long addr;
     unsigned char input,opcode,op;
     unsigned short memref, intAddr, strAddr,src,dest,oper1Addr,oper2Addr,mrSize;
-    unsigned int oper1, oper2;
+    // unsigned int oper1, oper2, result;
     bool dataNum; // 1 = palabra(32 bits), 0 = char (8 bits)
     
     assignMemory(argv[2]);
-    
     
     // unsigned int *base = ;
     pLitNum = (unsigned int *)(pMem + getBase(*(pMemg+1)));
@@ -62,8 +61,7 @@ int main(int argc, char** argv){
     pDataNum = (unsigned int *)(pMem + getBase(*(pMemg+3)));
     pDataStr = (unsigned char *)(pMem + getBase(*(pMemg+4))); //Char
     pWorkLoad = (unsigned int *)(pMem + getBase(*(pMemg+5)));
-
-    
+ 
     if (myReadFileBew.is_open()){
         while (myReadFileBew.read((char*)&input,sizeof(unsigned char))) {   
             cont++;
@@ -198,12 +196,7 @@ int main(int argc, char** argv){
                     }
                     addr >>= 11 ; //borra pad
                     break;
-                case 14:
-                    cout << "op:"<<code<< endl;
-                    break;
-                case 15:
-                    cout << "op:"<<code<< endl;
-                    break;
+                // los 13 y 14 no harían nada aca            
                 default:
                     cerr << "Error: opcode no válido"<< endl;
                     break;
@@ -293,44 +286,82 @@ int main(int argc, char** argv){
 
                     
                     if(dataNum){
-                        oper1 = *(pDataNum + oper1Addr);
-                        oper2 = *(pDataNum + oper1Addr);
-                        switch(op):
-
+                        // en caso de que el bit este en 1, las operaciones se hacen en dataNum
+                        // oper1 = *(pDataNum + oper1Addr);
+                        // oper2 = *(pDataNum + oper2Addr);
+                        switch(op){
+                            case 0:
+                                // result = oper1 + oper2;
+                                *(pDataNum + dest) = *(pDataNum + oper1Addr) + *(pDataNum + oper2Addr); 
+                            case 1:
+                                // result = oper1 - oper2;
+                                *(pDataNum + dest) = *(pDataNum + oper1Addr) - *(pDataNum + oper2Addr); 
+                            case 2:
+                                // result = oper1 * oper2;
+                                *(pDataNum + dest) = *(pDataNum + oper1Addr) * *(pDataNum + oper2Addr); 
+                            case 3:
+                                // result = oper1 / oper2;
+                                *(pDataNum + dest) = *(pDataNum + oper1Addr) / *(pDataNum + oper2Addr); 
+                            case 4:
+                                // result = oper1 % oper2;
+                                *(pDataNum + dest) = *(pDataNum + oper1Addr) % *(pDataNum + oper2Addr); 
+                        }                
                     }else{
-
+                        // operaciones a nivel de un caracter
+                        // oper1 = *(pDataStr + oper1Addr);
+                        // oper2 = *(pDataStr + oper2Addr);
+                        switch(op){
+                            case 0:
+                                // result = oper1 + oper2;
+                                *(pDataStr + dest) = *(pDataStr + oper1Addr) + *(pDataStr + oper2Addr);
+                            case 1:
+                                // result = oper1 - oper2;
+                                *(pDataStr + dest) = *(pDataStr + oper1Addr) - *(pDataStr + oper2Addr);
+                            case 2:
+                                // result = oper1 * oper2 ;
+                                *(pDataStr + dest) = *(pDataStr + oper1Addr) * *(pDataStr + oper2Addr);
+                            case 3:
+                                // result = oper1 / oper2;
+                                *(pDataStr + dest) = *(pDataStr + oper1Addr) / *(pDataStr + oper2Addr);
+                            case 4:
+                                // result = oper1 % oper2;
+                                *(pDataStr + dest) = *(pDataStr + oper1Addr) % *(pDataStr + oper2Addr);
+                        }
                     }
                     
-
                     break;  
-                case 6:
-                    
+                case 6:                    
                     intAddr = addr & 0X7FFF;
                     src = (addr >> 15) & 0X7FFF;
                     dest = (addr>>30) & 0X7FFF;
                     dataNum = addr >> 45;
                     if(dataNum){
-
+                        *(pDataNum + dest) = *(pDataNum + src + intAddr);
                     }else{
-                        
+                        *(pDataStr + dest) = *(pDataStr + src + intAddr);
                     }
                     break;
                 case 7:
-                    src= addr & 0X7FFF;
+                    src = addr & 0X7FFF;
                     intAddr = (addr >> 15) & 0X7FFF;
                     dest = (addr >> 30) & 0X7FFF;
                     dataNum = addr >> 45;
                     if(dataNum){
-
+                        *(pDataNum + dest + intAddr) = *(pDataNum + src);
                     }else{
-                        
+                        *(pDataStr + dest + intAddr) = *(pDataStr + src);
                     }  
                     break;
                 case 8:                
                     memref = addr;
+                    // int leerInt;
+                    // cin >> leerInt;                
+                    // *(pDataNum + memref) = leerInt//leer desde control
                     break;
                 case 9:
                     memref = addr;
+                    // int printInt = *(pDataNum + memref);
+                    // cout <<  printInt;
                     break;
                 case 10:
                     
