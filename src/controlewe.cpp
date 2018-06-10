@@ -64,20 +64,28 @@ int main(int argc, char** argv){
     unsigned int memg[memgSize]; 
     memg[0] = input; 
     
+    
     for(int i = 1;i<memgSize;++i){
       myReadFileMew.read((char*)&input,sizeof(unsigned int));
+
+      if(i == 2 || i == 4){ //solo si es litstr o .datastr
+        if((segSize%4)!= 0 ){
+          segSize = segSize-(segSize%4)+4; // no funciona con -=
+        }
+      }
       memg[i] = input;
+
     }
 
     // calcular tamaño memoria
     input = memg[5];
     size_mem = getBase(input)+ getSize(input);  // inicio workload + tamaño
     
-    
     if(createMemory(argv[1])){ // crear memoria
       cerr << "Error: la memoria "<<argv[1]<<" ha creada anteriormente"<<endl;
       return 1;
     }
+    
 
     // escribir en memoria
     for(int i = 0;i<memgSize;++i){
@@ -99,12 +107,14 @@ int main(int argc, char** argv){
       *(pLitNum+i) = input;
     }
 
+    cout << getSize(memg[2])<<endl;
     // escribit litstring
     for(int i = 0; i<getSize(memg[2]);++i){
       myReadFileMew.read((char*)&leer,sizeof(unsigned char));
       *(pLitStr+i) = leer;
     }
     
+  
   }
 
   myReadFileMew.close();  
