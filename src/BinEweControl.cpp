@@ -17,11 +17,10 @@ int main(int argc, char** argv){
       //cout << "Child: " << processes[files]  << endl;
       //Inter.readBew(argv[2], files);
       execlp( "./BinEweInterpreter", "./BinEweInterpreter", "-n", argv[2], argv[files+4], NULL);
-      cout << " Proc " << endl;
       _exit(EXIT_SUCCESS);
     }else if(processes[files] == -1){
-      perror( "Exec Process Failed" );
-      exit( EXIT_FAILURE );
+      perror("Exec Process Failed");
+      exit(EXIT_FAILURE);
     }else{
       //cout << "Father: " << processes[files]  << endl;
     }

@@ -14,36 +14,31 @@ int ControlEwe::readMew() {
   if (myReadFileMew.is_open()) {
     myReadFileMew.read((char*)&input,sizeof(unsigned int));
     memgSize = getSize(input); // .memg size
-    unsigned int memg[memgSize];
-    memg[0] = input;
-    for(int i = 1;i<memgSize;++i){
-      myReadFileMew.read((char*)&input,sizeof(unsigned int));
-      memg[i] = input;
-    }
-    // calcular tamaño memoria
-    input = memg[5];
-    size_mem = getBase(input)+ getSize(input);  // inicio workload + tamaño
     if(createMemory(argv[0])){ // crear memoria
       cerr << "Error: la memoria "<<argv[1]<<" ha creada anteriormente"<<endl;
       return 1;
     }
-    // escribir en memoria
-    for(int i = 0; i< memgSize;++i){
-      *(pMemg+i) = memg[i];
+    *(pMemg+0) = input;
+    for(int i = 1; i< memgSize; ++i){
+      myReadFileMew.read((char*)&input,sizeof(unsigned int));
+      *(pMemg + i) = input;
     }
+    // calcular tamaño memoria
+    input = *(pMemg + 5); //memg[5];
+    size_mem = getBase(input)+ getSize(input);  // inicio workload + tamaño
     // crear punteros
-    pLitNum = (unsigned int *)(pMem + getBase(memg[1]));
-    pLitStr = (unsigned char *)(pMem + getBase(memg[2])); //Char
-    pDataNum = (unsigned int *)(pMem + getBase(memg[3]));
-    pDataStr = (unsigned char *)(pMem + getBase(memg[4])); //Char
-    pWorkLoad = (unsigned int *)(pMem + getBase(memg[5]));
+    pLitNum = (unsigned int *)(pMem + getBase(*(pMemg+1)));
+    pLitStr = (unsigned char *)(pMem + getBase(*(pMemg+2))); //Char
+    pDataNum = (unsigned int *)(pMem + getBase(*(pMemg+3)));
+    pDataStr = (unsigned char *)(pMem + getBase(*(pMemg+4))); //Char
+    pWorkLoad = (unsigned int *)(pMem + getBase(*(pMemg+5)));
     // escribir litnum
-    for(int i = 0; i<getSize(memg[1]);++i){
+    for(int i = 0; i<getSize(*(pMemg+1));++i){
       myReadFileMew.read((char*)&input,sizeof(unsigned int));
       *(pLitNum+i) = input;
     }
     // escribit litstring
-    for(int i = 0; i<getSize(memg[2]);++i){
+    for(int i = 0; i<getSize(*(pMemg+2));++i){
       myReadFileMew.read((char*)&leer,sizeof(unsigned char));
       *(pLitStr+i) = leer;
     }

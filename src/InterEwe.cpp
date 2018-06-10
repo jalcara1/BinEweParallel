@@ -252,7 +252,7 @@ int InterEwe::assignMemory(char* shmname) {
   size_mem= 1000;
   pMem = static_cast<unsigned char*>(mmap(NULL, size_mem, PROT_READ | PROT_WRITE, MAP_SHARED, shm, 0));
     
-  if ((void *) pMemg == (void *) -1) {
+  if ((void *) pMem == (void *) -1) {
     cerr << "Problems with memory map" << endl;
     return 1;
   }
