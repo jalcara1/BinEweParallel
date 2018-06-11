@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -c -Wall -o3
-LDFLAGS = -lrt
+LDFLAGS = -lrt -pthread
 CONTROL_SOURCES = src/BinEweControl.cpp src/ControlEwe.cpp
 INTERPRETER_SOURCES = src/BinEweInterpreter.cpp src/InterEwe.cpp
 CONTROL_OBJECTS = $(CONTROL_SOURCES:.cpp=.o)

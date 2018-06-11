@@ -2,10 +2,10 @@
 #include "ControlEwe.h"
 
 ControlEwe::ControlEwe(char** argvs) : argv(argvs)  {
-  cout << "ControlEwe Object is being created" << endl;
+  //cout << "ControlEwe Object is being created" << endl;
 }
 ControlEwe::~ControlEwe(void) {
-  cout << "ControlEwe Object is being deleting" << endl;
+  //cout << "ControlEwe Object is being deleted" << endl;
 }
 int ControlEwe::readMew() {
   unsigned int input, memgSize;
@@ -42,6 +42,11 @@ int ControlEwe::readMew() {
       myReadFileMew.read((char*)&leer,sizeof(unsigned char));
       *(pLitStr+i) = leer;
     }
+    // int sem_init(sem_t *sem, int pshared, unsigned int value);
+    // If pshared is nonzero, then the semaphore is shared between processes, and should be located in a region of shared memory
+    sem_t mutex;
+    sem_init(&mutex, 0, 1);
+    *(pWorkLoad+0) = mutex;
   }
   myReadFileMew.close();
   return 0;

@@ -2,12 +2,13 @@
 #include "InterEwe.h"
 
 InterEwe::InterEwe() {
-  cout << "InterEwe Object is being created" << endl;
+  //cout << "InterEwe Object is being created" << endl;
 }
 InterEwe::~InterEwe(void) {
-  cout << "InterEwe Object is being deleting" << endl;
+  //cout << "InterEwe Object is being deleted" << endl;
 }
 int InterEwe::readBew(char* shmname, char* file) {
+  cout << "Working"; 
   fstream myReadFileBew(file,ios_base::binary|ios_base::in);
   int cont =0, code;
   unsigned long long addr;
@@ -23,16 +24,17 @@ int InterEwe::readBew(char* shmname, char* file) {
   pDataNum = (unsigned int *)(pMem + getBase(*(pMemg+3)));
   pDataStr = (unsigned char *)(pMem + getBase(*(pMemg+4))); //Char
   pWorkLoad = (sem_t*)((int *)(pMem + getBase(*(pMemg+5))));
+  //sem_wait(&(*(pWorkLoad+0))); //Semamphore Call Example 
   if (myReadFileBew.is_open()){
     while (myReadFileBew.read((char*)&input,sizeof(unsigned char))) {   
       cont++;
-      // cout <<"instrucción: "<<cont<<endl;
+      // //cout <<"instrucción: "<<cont<<endl;
       opcode = input >> 4;
       addr = input & 0xF;
       code = opcode;
       switch (opcode) {
       case 0:
-	// cout << "op: " << code << endl;
+	// //cout << "op: " << code << endl;
 	for(int i =0; i< 7; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -41,7 +43,7 @@ int InterEwe::readBew(char* shmname, char* file) {
 	addr >>= 30; //borra pad     
 	break;
       case 1:
-	// cout << "op: " << code << endl;
+	// //cout << "op: " << code << endl;
 	for(int i =0; i< 7; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -50,7 +52,7 @@ int InterEwe::readBew(char* shmname, char* file) {
 	addr >>= 30; //borra pad
 	break;
       case 2:
-	// cout << "op: " << code << endl;
+	// //cout << "op: " << code << endl;
 	for(int i =0; i< 7; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -59,7 +61,7 @@ int InterEwe::readBew(char* shmname, char* file) {
 	addr >>= 30; //borra pad          
 	break;
       case 3:
-	// cout << "op: " << code << endl;
+	// //cout << "op: " << code << endl;
 	for(int i =0; i< 3; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -68,7 +70,7 @@ int InterEwe::readBew(char* shmname, char* file) {
 	memref = addr >> 13; //borra pad
 	break;
       case 4:
-	// cout << "op: " << code << endl;
+	// //cout << "op: " << code << endl;
 	for(int i =0; i< 7; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -77,7 +79,7 @@ int InterEwe::readBew(char* shmname, char* file) {
 	addr >>= 29 ; //borra pad
 	break;
       case 5:
-	// cout << "op: " << code << endl;
+	// //cout << "op: " << code << endl;
 	for(int i =0; i< 7; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -86,7 +88,7 @@ int InterEwe::readBew(char* shmname, char* file) {
 	addr >>= 11 ; //borra pad
 	break;
       case 6:
-	// cout << "op: " << code << endl;                          
+	// //cout << "op: " << code << endl;                          
 	for(int i =0; i< 7; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -95,7 +97,7 @@ int InterEwe::readBew(char* shmname, char* file) {
 	addr >>= 14;
 	break;
       case 7:
-	// cout << "op: " << code << endl;                          
+	// //cout << "op: " << code << endl;                          
 	for(int i =0; i< 7; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -104,7 +106,7 @@ int InterEwe::readBew(char* shmname, char* file) {
 	addr >>=14; 
 	break;
       case 8:
-	// cout << "op: " << code << endl;
+	// //cout << "op: " << code << endl;
 	for(int i =0; i< 3; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -113,7 +115,7 @@ int InterEwe::readBew(char* shmname, char* file) {
 	addr >>= 13;       
 	break;
       case 9:
-	// cout << "op: " << code << endl;             
+	// //cout << "op: " << code << endl;             
 	for(int i =0; i< 3; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -122,7 +124,7 @@ int InterEwe::readBew(char* shmname, char* file) {
 	addr >>= 13;      
 	break;
       case 10:
-	// cout << "op: " << code << endl;
+	// //cout << "op: " << code << endl;
 	for(int i =0; i< 7; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -131,7 +133,7 @@ int InterEwe::readBew(char* shmname, char* file) {
 	addr >>= 30; //borra pad                                
 	break;
       case 11:
-	// cout << "op: " << code << endl;     
+	// //cout << "op: " << code << endl;     
 	for(int i =0; i< 3; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -140,7 +142,7 @@ int InterEwe::readBew(char* shmname, char* file) {
 	addr >>= 13;            
 	break;
       case 12:
-	// cout << "op: " << code << endl;     
+	// //cout << "op: " << code << endl;     
 	for(int i =0; i< 3; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -149,7 +151,7 @@ int InterEwe::readBew(char* shmname, char* file) {
 	addr >>= 13;                
 	break;
       case 13:
-	// cout << "op: " << code << endl;
+	// //cout << "op: " << code << endl;
 	for(int i =0; i< 7; ++i){
 	  myReadFileBew.read((char*)&input,sizeof(unsigned char));
 	  addr <<= 8;
@@ -161,38 +163,38 @@ int InterEwe::readBew(char* shmname, char* file) {
       default:                
 	break;
       }
-      // cout << "address:" <<hex << addr << endl;
+      // //cout << "address:" <<hex << addr << endl;
       instructions.push_back(addr); //addr sin opcode
       opcodes.push_back(opcode);
     }    
-    cout << endl << "Instrucciones: "<<endl;
+    //cout << endl << "Instrucciones: "<<endl;
     for(int i = 0; i< instructions.size(); ++i){
       code = opcodes[i];
-      cout << "opcode "<<hex << code << " ";
-      cout << "address "<<hex << instructions[i]<< endl;
+      //cout << "opcode "<<hex << code << " ";
+      //cout << "address "<<hex << instructions[i]<< endl;
     }
-    cout << endl << "Interpretando: "<< endl;
+    //cout << endl << "Interpretando: "<< endl;
     char aux;       
     for(int PC = 0; PC< instructions.size(); ++PC){            
       opcode = opcodes[PC];
       addr = instructions[PC];
       code = opcode;
-      cout << endl << "PC "<<PC<<endl;
-      cout <<"op:"<<code<< endl;           
-      cout << "address:" <<hex << addr << endl;
+      //cout << endl << "PC "<<PC<<endl;
+      //cout <<"op:"<<code<< endl;           
+      //cout << "address:" <<hex << addr << endl;
       switch (opcode) {
       case 0:                                                        
 	intAddr = addr & 0x7FFF;
 	memref =  addr >> 15;
-	cout << "memref:"<<hex<<memref<<endl;
-	cout << "intAddr:"<<hex<<intAddr<<endl;
+	//cout << "memref:"<<hex<<memref<<endl;
+	//cout << "intAddr:"<<hex<<intAddr<<endl;
 	*(pDataNum + memref) = *(pLitNum + intAddr);                    
 	break;
       case 1:                            
 	strAddr = addr & 0x7FFF;
 	memref =  addr >> 15;
-	cout << "memref:"<<hex<<memref<<endl;
-	cout << "strAddr:"<<hex<<strAddr<<endl;
+	//cout << "memref:"<<hex<<memref<<endl;
+	//cout << "strAddr:"<<hex<<strAddr<<endl;
 	cont = 0;
 	// aux = *(pLitStr + strAddr + cont)
 	while(*(pLitStr + strAddr + cont)){
@@ -204,23 +206,23 @@ int InterEwe::readBew(char* shmname, char* file) {
       case 2:                
 	intAddr = addr & 0x7FFF;
 	memref =  addr >> 15;
-	cout << "memref:"<<hex<<memref<<endl;
-	cout << "intAddr:"<<hex<<intAddr<<endl;
+	//cout << "memref:"<<hex<<memref<<endl;
+	//cout << "intAddr:"<<hex<<intAddr<<endl;
 	*(pDataNum + memref) = PC+*(pLitNum+intAddr);
 	break;
       case 3:                
 	memref = addr >> 13;
 	PC = *(pDataNum+memref);
-	cout << "memref:"<<hex<<memref<<endl;
-	cout << "PC:"<<hex<<PC<<endl;
+	//cout << "memref:"<<hex<<memref<<endl;
+	//cout << "PC:"<<hex<<PC<<endl;
 	break;
       case 4:                    
 	src = addr & 0x7FFF;
 	dest = (addr >> 15) & 0x7FFF;
 	flag = addr >> 30;
-	cout << "src:"<< hex << src << endl;
-	cout << "dest:" << hex << dest << endl;
-	cout << "flag:" << hex << flag <<endl;
+	//cout << "src:"<< hex << src << endl;
+	//cout << "dest:" << hex << dest << endl;
+	//cout << "flag:" << hex << flag <<endl;
 	if(flag){
 	  *(pDataNum + dest) = *(pDataNum + src);
 	}else{
@@ -240,11 +242,11 @@ int InterEwe::readBew(char* shmname, char* file) {
 	addr >>= 45;
 	flag= addr & 1;
 	op = addr >> 1;
-	cout << "oper2Addr:" << hex << oper2Addr <<endl;
-	cout << "oper1Addr:" << hex << oper1Addr <<endl;
-	cout << "dest:" << hex << dest <<endl;
-	cout << "flag:" << hex << flag <<endl;
-	cout << "op:" << hex << op <<endl;
+	//cout << "oper2Addr:" << hex << oper2Addr <<endl;
+	//cout << "oper1Addr:" << hex << oper1Addr <<endl;
+	//cout << "dest:" << hex << dest <<endl;
+	//cout << "flag:" << hex << flag <<endl;
+	//cout << "op:" << hex << op <<endl;
 	if(flag){
 	  // en caso de que el bit este en 1, las operaciones se hacen en flag
 	  // oper1 = *(pDataNum + oper1Addr);
@@ -329,14 +331,14 @@ int InterEwe::readBew(char* shmname, char* file) {
       case 9:
 	memref = addr;
 	// int printInt = *(pDataNum + memref);
-	// cout <<  printInt;
-	cout << "memref:"<<hex<<memref<<endl;
+	// //cout <<  printInt;
+	//cout << "memref:"<<hex<<memref<<endl;
 	break;
       case 10:
 	mrSize = addr & 0x7FFF;
 	dest =  addr >> 15;
-	cout << "dest:" << hex << dest << endl;
-	cout << "mrSize:" << hex << mrSize <<endl;
+	//cout << "dest:" << hex << dest << endl;
+	//cout << "mrSize:" << hex << mrSize <<endl;
 	// hacer lo que debe hacer
 	break;
       case 11:                    
@@ -399,14 +401,19 @@ int InterEwe::readBew(char* shmname, char* file) {
 	  }                        
 	}
       case 14:
-	cout << "op: " << code << endl;
-	cout << "terminado,"<<endl;
+	//Just return
+	//cout << "op: " << code << endl;
+	//cout << "terminado,"<<endl;
 	return 0; // OJO!!! terminar ejecucion del interpretador (Objeto creado)
 	break;
       case 15:
-	cout << "op: " << code << endl;
+	/*
+	  Si sucede esta instrucción enviar información a Control y bloquear proceso, luego esperar información para activar
+	  Seeing Pipe and Block Process On C++
+	*/
+	//cout << "op: " << code << endl;
 	// OJO!!! suspender proceso del interpretador, avisarle al control, hasta una reactivación
-	cout << "suspendido"<<endl;
+	//cout << "suspendido"<<endl;
 	return 0;
 	break;
       default:
@@ -426,7 +433,7 @@ int InterEwe::assignMemory(char* shmname) {
     cerr << "Problems with memory map" << endl;
     return 1;
   }
-  cout << "Shared memory already assigned"  << endl;
+  //cout << "Shared memory already assigned"  << endl;
   pMemg = (unsigned int *)pMem;
   return 0;
 }
