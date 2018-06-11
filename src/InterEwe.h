@@ -7,6 +7,8 @@ class InterEwe {
  public:
   int readBew(char* shmname, char* file);
   int assignMemory(char* shmname);
+  unsigned int getBase(unsigned int addr);
+  unsigned int getSize(unsigned int addr);
   InterEwe(); // This is the constructor declaration
   ~InterEwe(); // This is the destructor: declaration
  private:
@@ -19,8 +21,7 @@ class InterEwe {
   unsigned char *pLitStr;
   unsigned int *pDataNum;
   unsigned char *pDataStr;
-  //sem_t *pWorkLoad; //Semaphore Type
-  unsigned int *pWorkLoad;
+  sem_t *pWorkLoad; //Semaphore Type
 };
 
 #endif 

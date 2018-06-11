@@ -7,8 +7,8 @@ class ControlEwe {
  public:
   int readMew();
   int createMemory(char* shmname);
-  int getSize(int addr);
-  int getBase(int addr);
+  unsigned int getSize(unsigned int addr);
+  unsigned int getBase(unsigned int addr);
 
   ControlEwe(char** argv); // This is the constructor declaration
   ~ControlEwe(); // This is the destructor: declaration
@@ -22,8 +22,7 @@ class ControlEwe {
   unsigned char *pLitStr;
   unsigned int *pDataNum;
   unsigned char *pDataStr;
-  //sem_t *pWorkLoad; //Semaphore Type
-  unsigned int *pWorkLoad;
+  sem_t *pWorkLoad; //Semaphore Type
 };
 
 #endif 

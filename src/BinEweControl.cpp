@@ -13,16 +13,17 @@ int main(int argc, char** argv){
 
   pid_t processes[BinEwe]; // Run With Exec -> As a Bash Command
   for(int files =0; files< BinEwe; ++files){
-    if ((processes[files] = ::fork()) == 0) {
+    if ((processes[files] = ::fork()) == -1) {
+      perror("Exec Process Failed");
+      exit(EXIT_FAILURE);
+    }else if(processes[files] == 0){
       //cout << "Child: " << processes[files]  << endl;
       //Inter.readBew(argv[2], files);
       execlp( "./BinEweInterpreter", "./BinEweInterpreter", "-n", argv[2], argv[files+4], NULL);
       _exit(EXIT_SUCCESS);
-    }else if(processes[files] == -1){
-      perror("Exec Process Failed");
-      exit(EXIT_FAILURE);
     }else{
       //cout << "Father: " << processes[files]  << endl;
+      cout << "Father" << endl;
     }
   }
   int status;

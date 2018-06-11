@@ -25,20 +25,20 @@ int ControlEwe::readMew() {
     }
     // calcular tamaño memoria
     input = *(pMemg + 5); //memg[5];
-    size_mem = getBase(input)+ getSize(input);  // inicio workload + tamaño
+    size_mem = getBase(input) + getSize(input);  // inicio workload + tamaño
     // crear punteros
     pLitNum = (unsigned int *)(pMem + getBase(*(pMemg+1)));
     pLitStr = (unsigned char *)(pMem + getBase(*(pMemg+2))); //Char
     pDataNum = (unsigned int *)(pMem + getBase(*(pMemg+3)));
     pDataStr = (unsigned char *)(pMem + getBase(*(pMemg+4))); //Char
-    pWorkLoad = (unsigned int *)(pMem + getBase(*(pMemg+5)));
+    pWorkLoad = (sem_t*)((int *)(pMem + getBase(*(pMemg+5))));
     // escribir litnum
-    for(int i = 0; i<getSize(*(pMemg+1));++i){
+    for(int i = 0; i< getSize(*(pMemg+1)); ++i){
       myReadFileMew.read((char*)&input,sizeof(unsigned int));
       *(pLitNum+i) = input;
     }
     // escribit litstring
-    for(int i = 0; i<getSize(*(pMemg+2));++i){
+    for(int i = 0; i< getSize(*(pMemg+2)); ++i){
       myReadFileMew.read((char*)&leer,sizeof(unsigned char));
       *(pLitStr+i) = leer;
     }
@@ -66,9 +66,9 @@ int ControlEwe::createMemory(char* shmname){ //Just Create The *pMem for Each In
   pMemg = (unsigned int *)pMem;
   return 0;
 }
-int ControlEwe::getSize(int addr){
+unsigned int ControlEwe::getSize(unsigned int addr){
   return (addr & 0xFFFF);
 }
-int ControlEwe::getBase(int addr){
+unsigned int ControlEwe::getBase(unsigned int addr){
   return ((addr >> 16) << 2);
 }
