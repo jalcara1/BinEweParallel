@@ -9,7 +9,7 @@
 using namespace std;
 int main(int argc, char** argv){
   int BinEwe = (argc - 4);
-  int link[2];
+  int link[2], status;
   char foo[4096];
   if(pipe(link) == -1){
     exit(EXIT_FAILURE);
@@ -31,13 +31,14 @@ int main(int argc, char** argv){
     }else{
       close(link[1]);
       int nbytes = read(link[0], foo, sizeof(foo));
-      printf("\nOutput: (%.*s)\n", nbytes, foo);
+      printf("\n%.*s ", nbytes, foo);
+      waitpid(processes[files], &status, 0);
     }
   }
-  int status;
-  for(int files =0; files< BinEwe; ++files){
-    waitpid(processes[files], &status, 0);
-  }
+  // int status;
+  // for(int files =0; files< BinEwe; ++files){
+  //   waitpid(processes[files], &status, 0);
+  // }
   //cout << endl << "¡Control Execution Succeed!" << endl;
   return 0;
 }

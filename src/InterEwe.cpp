@@ -8,7 +8,6 @@ InterEwe::~InterEwe(void) {
   //cout << "InterEwe Object is being deleted" << endl;
 }
 int InterEwe::readBew(char* shmname, char* file) {
-  cout << "Working"; 
   fstream myReadFileBew(file,ios_base::binary|ios_base::in);
   int cont =0, code;
   unsigned long long addr;
@@ -24,7 +23,16 @@ int InterEwe::readBew(char* shmname, char* file) {
   pDataNum = (unsigned int *)(pMem + getBase(*(pMemg+3)));
   pDataStr = (unsigned char *)(pMem + getBase(*(pMemg+4))); //Char
   pWorkLoad = (sem_t*)((int *)(pMem + getBase(*(pMemg+5))));
-  //sem_wait(&(*(pWorkLoad+0))); //Semamphore Call Example 
+  //sem_wait(&(*(pWorkLoad+0))); //Semamphore Call Example
+  
+  int ww =69;
+  //cout << "Starting »» " << getpid() << " : " << ww << endl;
+  sem_wait(&(*(pWorkLoad+0))); // Block Resource
+  cout << "Before Write --> " << getpid() << endl;
+  cin >> ww;
+  cout << "After Write -->" << getpid() << " : " << ww << endl;
+  sem_post(&(*(pWorkLoad+0))); // Unblock Resource
+  
   if (myReadFileBew.is_open()){
     while (myReadFileBew.read((char*)&input,sizeof(unsigned char))) {   
       cont++;

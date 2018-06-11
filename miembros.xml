@@ -1,7 +1,6 @@
 <grupo>
   <nombre>jujuOperativos</nombre>
-  <!-- <repositorio>https://bitbucket.org/jujuOperativos</repositorio> ¿URL para clonar?-->
-  <repositorio>https://bitbucket.org/jalcara1/jujuoperativos/</repositorio>
+  <repositorio>https://jalcara1@bitbucket.org/jalcara1/jujuoperativos.git</repositorio>
   <miembro>
     <nombre>Juan Pablo Alcaraz Florez</nombre>
     <codigo>201510046010</codigo>
