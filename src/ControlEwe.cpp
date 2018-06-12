@@ -15,12 +15,10 @@ int ControlEwe::readMew() {
   fstream myReadFileMew(mewFile,ios_base::binary|ios_base::in);
  
   if (myReadFileMew.is_open()) {  
-
     for(int i = 0; i <= 5; ++i){
       myReadFileMew.read((char*)&input,sizeof(unsigned int));
       segments[i] = input;
     }
-
     // calcular tamaño memoria
     size_mem = getBase(segments[5]) + getSize(segments[5]);  // inicio workload + tamaño
 
@@ -28,7 +26,6 @@ int ControlEwe::readMew() {
       cerr << "Error: la memoria "<<shmname<<" ha creada anteriormente"<<endl;
       return 1;
     }
-    
     pMemg = (unsigned int *)(pMem+0);
 
     for(int i = 0; i <= 5; ++i){
@@ -40,13 +37,11 @@ int ControlEwe::readMew() {
       }
       *(pMemg + i) = input;
     }
-
     pLitNum = (int *)(pMem + getBase(*(pMemg+1)));
     pLitStr = (char *)(pMem + getBase(*(pMemg+2))); //Char
     pDataNum = (int *)(pMem + getBase(*(pMemg+3)));
     pDataStr = (char *)(pMem + getBase(*(pMemg+4))); //Char
     pWorkLoad = (sem_t*)((int *)(pMem + getBase(*(pMemg+5))));
-    
 
     segSize = getSize(int(*(pMemg + 0))); // .memg size    
     
@@ -55,15 +50,12 @@ int ControlEwe::readMew() {
       myReadFileMew.read((char*)&input,sizeof(unsigned int));
       *(pMemg + i) = input;
     }
-     
-    
     segSize =  getSize(int(*(pMemg+1)));
     // escribir litnum
     for(int i = 0; i < segSize ; ++i){
       myReadFileMew.read((char*)&input,sizeof(unsigned int));
       *(pLitNum+i) = input;     
     }
-    
     segSize =  getSize(int(*(pMemg+2)));
     cout <<"s:" <<segSize << endl;
     // escribir litstring
@@ -74,17 +66,9 @@ int ControlEwe::readMew() {
     }
     // int sem_init(sem_t *sem, int pshared, unsigned int value);
     // If pshared is nonzero, then the semaphore is shared between processes, and should be located in a region of shared memory
-    sem_t mutexReadInt, mutexReadStr, mutexWriteInt, mutexWriteStr, mutexBreak;
-    sem_init(&mutexReadInt, 1, 1);
-    sem_init(&mutexReadStr, 1, 1);
-    sem_init(&mutexWriteInt, 1, 1);
-    sem_init(&mutexWriteStr, 1, 1);
-    sem_init(&mutexBreak, 1, 1);
-    *(pWorkLoad+0) = mutexReadInt;
-    *(pWorkLoad+1) = mutexReadStr;
-    *(pWorkLoad+2) = mutexWriteInt;
-    *(pWorkLoad+3) = mutexWriteStr;
-    *(pWorkLoad+4) = mutexBreak;
+    sem_t mutexInputOutput;
+    sem_init(&mutexInputOutput, 1, 1);
+    *(pWorkLoad+0) = mutexInputOutput;
   }
   myReadFileMew.close();
   return 0;
