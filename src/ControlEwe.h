@@ -6,14 +6,15 @@
 class ControlEwe {
  public:
   int readMew();
-  int createMemory(char* shmname);
+  int createMemory();
   unsigned int getSize(unsigned int addr);
   unsigned int getBase(unsigned int addr);
 
-  ControlEwe(char** argv); // This is the constructor declaration
+  ControlEwe(char* shmname, string mewFile); // This is the constructor declaration
   ~ControlEwe(); // This is the destructor: declaration
  private:
-  char** argv;
+  char* shmname;
+  string mewFile;
 
   off_t size_mem; // Include Specific Library
   unsigned char *pMem;

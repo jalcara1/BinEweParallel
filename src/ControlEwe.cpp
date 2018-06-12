@@ -1,7 +1,7 @@
 //Controlewe.cpp
 #include "ControlEwe.h"
 
-ControlEwe::ControlEwe(char** argvs) : argv(argvs)  {
+ControlEwe::ControlEwe(char* shmname, string mewFile) : shmname(shmname), mewFile(mewFile) {
   //cout << "ControlEwe Object is being created" << endl;
 }
 ControlEwe::~ControlEwe(void) {
@@ -10,12 +10,12 @@ ControlEwe::~ControlEwe(void) {
 int ControlEwe::readMew() {
   unsigned int input, memgSize;
   unsigned char leer;
-  fstream myReadFileMew(argv[1],ios_base::binary|ios_base::in);
+  fstream myReadFileMew(mewFile,ios_base::binary|ios_base::in);
   if (myReadFileMew.is_open()) {
     myReadFileMew.read((char*)&input,sizeof(unsigned int));
     memgSize = getSize(input); // .memg size
-    if(createMemory(argv[0])){ // crear memoria
-      cerr << "Error: la memoria "<<argv[1]<<" ha creada anteriormente"<<endl;
+    if(createMemory()){ // crear memoria
+      cerr << "Error: la memoria " << shmname << " ha creada anteriormente" << endl;
       return 1;
     }
     *(pMemg+0) = input;
@@ -42,16 +42,19 @@ int ControlEwe::readMew() {
       myReadFileMew.read((char*)&leer,sizeof(unsigned char));
       *(pLitStr+i) = leer;
     }
+    cout << "LICI\n";
     // int sem_init(sem_t *sem, int pshared, unsigned int value);
     // If pshared is nonzero, then the semaphore is shared between processes, and should be located in a region of shared memory
-    sem_t mutex;
+    sem_t mutex, mutex2;
     sem_init(&mutex, 1, 1);
+    sem_init(&mutex2, 1, 1);
     *(pWorkLoad+0) = mutex;
+    *(pWorkLoad+1) = mutex2;
   }
   myReadFileMew.close();
   return 0;
 }
-int ControlEwe::createMemory(char* shmname){ //Just Create The *pMem for Each InterEwe
+int ControlEwe::createMemory(){ //Just Create The *pMem for Each InterEwe
   size_mem = 1000;
   int shm = shm_open(shmname, O_CREAT | O_RDWR | O_EXCL, 0600);
   if (shm == -1) {
@@ -69,6 +72,7 @@ int ControlEwe::createMemory(char* shmname){ //Just Create The *pMem for Each In
     return 1;
   }
   pMemg = (unsigned int *)pMem;
+  cout << "LOCO\n";
   return 0;
 }
 unsigned int ControlEwe::getSize(unsigned int addr){

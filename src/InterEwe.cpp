@@ -8,6 +8,7 @@ InterEwe::~InterEwe(void) {
   //cout << "InterEwe Object is being deleted" << endl;
 }
 int InterEwe::readBew(char* shmname, char* file) {
+  cout << "AQUI\n";
   fstream myReadFileBew(file,ios_base::binary|ios_base::in);
   int cont =0, code;
   unsigned long long addr;
@@ -32,6 +33,15 @@ int InterEwe::readBew(char* shmname, char* file) {
   cin >> ww;
   cout << "After Write -->" << getpid() << " : " << ww << endl;
   sem_post(&(*(pWorkLoad+0))); // Unblock Resource
+
+  if(ww == 100){
+    string t = "";
+    cout << "Process Blocked Press: continue -->" << getpid() << endl;;
+    sem_wait(&(*(pWorkLoad+1))); // Block Resource
+    cin >> t;
+    cout << "Process Unlocked " << getpid() << " > " << ww << endl;
+    sem_post(&(*(pWorkLoad+1))); // Unblock Resource
+  }  
   
   if (myReadFileBew.is_open()){
     while (myReadFileBew.read((char*)&input,sizeof(unsigned char))) {   
