@@ -428,7 +428,7 @@ int InterEwe::readBew(char *shmname, char *file)
 				else
 				{
 					*(pDataStr + dest) = *(pDataStr + src + intAddr);
-					aux = readDatastr(src+intAddr);
+					aux = readDatastr(src+intAddr, mapDataStr[src+intAddr]);
 					writeDatastr(dest,aux,mapDataStr[dest]);
 				}
 				break;
@@ -447,7 +447,7 @@ int InterEwe::readBew(char *shmname, char *file)
 				else
 				{
 					*(pDataStr) = *(pDataStr + src);
-					aux = readDatastr(src);
+					aux = readDatastr(src, mapDataStr[src]);
 					writeDatastr(src,aux,mapDataStr[src]);
 				}
 				break;
@@ -765,7 +765,7 @@ int InterEwe::readDatanum(int pos,int politica){
     if (cuentalect == 1){
       sem_wait(&(*(pWorkLoad)));
       sem_post(&(*(pWorkLoad+1)));
-      valorRetornar= *(datanum+pos);
+      valorRetornar= *(pDataNum+pos);
       sem_wait(&(*(pWorkLoad+1)));
       cuentalect--;
     }
@@ -785,7 +785,7 @@ int InterEwe::readDatanum(int pos,int politica){
       sem_post (&(*(pWorkLoad+6)));
       sem_post (&(*(pWorkLoad+3)));
       sem_post (&(*(pWorkLoad+5)));
-      valorRetornar= *(datanum+pos);
+      valorRetornar= *(pDataNum+pos);
       sem_wait (&(*(pWorkLoad+6)));
       cuentalect2 --;
     }
@@ -799,14 +799,14 @@ int InterEwe::readDatanum(int pos,int politica){
     bloqueo--;
     //cout<<"Entre a la politica 3 readDatanum------bloque: "<<bloqueo<<endl;
 
-    valorRetornar= *(datanum+pos);
+    valorRetornar= *(pDataNum+pos);
     bloqueo++;
     //cout<<"bloque: "<<bloqueo<<endl;
 
     sem_post(&(*(pWorkLoad+7)));
     return valorRetornar;
   }else if(politica==4){
-    return *(datanum+pos);
+    return *(pDataNum+pos);
   }
   return valorRetornar;
 }
