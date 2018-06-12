@@ -12,7 +12,8 @@
 using namespace std;
 
 unsigned char *pMem,*pLitStr, *pDataStr;
-unsigned int *pMemg,*pLitNum, *pDataNum, *pWorkLoad; 
+unsigned int *pMemg;
+int *pLitNum, *pDataNum, *pWorkLoad; 
 
 //borrar cuando no se use
 vector<unsigned long long> instructions;
