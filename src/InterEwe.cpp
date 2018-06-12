@@ -262,6 +262,7 @@ int InterEwe::readBew(char *shmname, char *file)
 		// }
 		int data;
 		char* datastr;
+		char aux;
 		for (int PC = 0; PC < instructions.size(); ++PC)
 		{
 			opcode = opcodes[PC];
@@ -287,11 +288,12 @@ int InterEwe::readBew(char *shmname, char *file)
 				//cout << "memref:"<<hex<<memref<<endl;
 				//cout << "strAddr:"<<hex<<strAddr<<endl;
 				cont = 0;
-				// aux = *(pLitStr + strAddr + cont)			
-				while (*(pLitStr + strAddr + cont) != '0')
+				aux = readLitstr(strAddr+cont);
+				while (aux != '0')
 				{
-					*(pDataStr + memref + cont) = *(pLitStr + strAddr + cont);
+					writeDatastr(memref+cont,aux,mapDataStr[memref+cont]);
 					cont++;
+					aux = readLitstr(strAddr+cont);										
 				}
 				*(pDataStr + memref + cont) = *(pLitStr + strAddr + cont);
 				break;
