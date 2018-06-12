@@ -13,6 +13,8 @@ class InterEwe {
   void writeDatanum(int pos, int data, int politica);
   int readLitNum(int dir);
   char readLitstr(int pos);
+  int readDatanum(int pos,int politica);
+  char readDatastr(int pos,int politica);
   void writeDatastr(int pos, char data,int politica);
   InterEwe(); // This is the constructor declaration
   ~InterEwe(); // This is the destructor: declaration
