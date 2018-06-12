@@ -386,21 +386,21 @@ int InterEwe::readBew(char *shmname, char *file)
 				// OJO!!! 8,9,10,11 requieren posiblemente pipes
 			case 8: // Read Int				
 				memref = addr;
-				sem_wait(&(*(pWorkLoad + 0))); // Block Resource
+				sem_wait(&(*(pWorkLoad + 8))); // Block Resource
 				cout << "Read Int: ";
 				cin >> readInt;
 				readInt = 99;
 				*(pDataNum + memref) = readInt; //leer desde control
-				sem_post(&(*(pWorkLoad + 0)));  // Unblock Resource
+				sem_post(&(*(pWorkLoad + 8)));  // Unblock Resource
 				// int leerInt;
 				// cin >> leerInt;
 				//*(pDataNum + memref) = leerInt//leer desde control
 				break;
 			case 9: // Write Int				
 				memref = addr;
-				sem_wait(&(*(pWorkLoad + 0))); // Block Resource
+				sem_wait(&(*(pWorkLoad + 8))); // Block Resource
 				cout << "Write Int: " << *(pDataNum + memref) << endl;
-				sem_post(&(*(pWorkLoad + 0))); // Unblock Resource
+				sem_post(&(*(pWorkLoad + 8))); // Unblock Resource
 				// int printInt = *(pDataNum + memref);
 				// //cout <<  printInt;
 				//cout << "memref:"<<hex<<memref<<endl;
@@ -412,10 +412,10 @@ int InterEwe::readBew(char *shmname, char *file)
 				cout << "dest:" << hex << dest << endl;
 				cout << "mrSize:" << hex << mrSize <<endl;
 				
-				sem_wait(&(*(pWorkLoad + 0))); // Block Resource
+				sem_wait(&(*(pWorkLoad + 8))); // Block Resource
 				cout << "Read Str: ";
 				cin >> readStr;                                           			
-				sem_post(&(*(pWorkLoad + 0))); // Unblock Resource
+				sem_post(&(*(pWorkLoad + 8))); // Unblock Resource
 				cont = 0;
 
 				while(cont<mrSize && readStr[cont] != '0'){
@@ -435,9 +435,9 @@ int InterEwe::readBew(char *shmname, char *file)
 					writeStr += *(pDataStr + memref + cont);
 					cont++;
 				}
-				sem_wait(&(*(pWorkLoad + 0))); // Block Resource
+				sem_wait(&(*(pWorkLoad + 8))); // Block Resource
 				cout << "Write Str: "<< writeStr << endl; 
-				sem_post(&(*(pWorkLoad + 0))); // Unblock Resource
+				sem_post(&(*(pWorkLoad + 8))); // Unblock Resource
 				break;
 			case 12:
 				intAddr = addr;
@@ -523,10 +523,10 @@ int InterEwe::readBew(char *shmname, char *file)
 		Si sucede esta instrucción enviar información a Control y bloquear proceso, luego esperar información para activar
 		Seeing Pipe and Block Process On C++
 	*/
-				sem_wait(&(*(pWorkLoad + 0))); // Block Resource
+				sem_wait(&(*(pWorkLoad + 8))); // Block Resource
 				cout << "Break, Enter Any Key: ";
 				cin >> braek;
-				sem_post(&(*(pWorkLoad + 0))); // Unblock Resource
+				sem_post(&(*(pWorkLoad + 8))); // Unblock Resource
 				//cout << "op: " << code << endl;
 				// OJO!!! suspender proceso del interpretador, avisarle al control, hasta una reactivación
 				//cout << "suspendido"<<endl;
