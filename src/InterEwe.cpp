@@ -261,6 +261,7 @@ int InterEwe::readBew(char *shmname, char *file)
 		//     cout << "address "<<hex << instructions[i]<< endl;
 		// }
 		int data;
+		char* datastr;
 		for (int PC = 0; PC < instructions.size(); ++PC)
 		{
 			opcode = opcodes[PC];
@@ -276,7 +277,8 @@ int InterEwe::readBew(char *shmname, char *file)
 				memref = addr >> 15;
 				//cout << "memref:"<<hex<<memref<<endl;
 				//cout << "intAddr:"<<hex<<intAddr<<endl;
-				data = *(pLitNum + intAddr);
+								
+				data = readLitNum(intAddr);
 				writeDatanum(memref,data,mapDataNum[memref]);			
 				break;
 			case 1:
@@ -285,7 +287,7 @@ int InterEwe::readBew(char *shmname, char *file)
 				//cout << "memref:"<<hex<<memref<<endl;
 				//cout << "strAddr:"<<hex<<strAddr<<endl;
 				cont = 0;
-				// aux = *(pLitStr + strAddr + cont)
+				// aux = *(pLitStr + strAddr + cont)			
 				while (*(pLitStr + strAddr + cont) != '0')
 				{
 					*(pDataStr + memref + cont) = *(pLitStr + strAddr + cont);
@@ -298,7 +300,7 @@ int InterEwe::readBew(char *shmname, char *file)
 				memref = addr >> 15;
 				//cout << "memref:"<<hex<<memref<<endl;
 				//cout << "intAddr:"<<hex<<intAddr<<endl;			
-				data = PC + *(pLitNum + intAddr);
+				data = PC + readLitNum(intAddr); //movemos el pc
 				writeDatanum(memref,data,mapDataNum[memref]);	
 				break;
 			case 3:
@@ -316,7 +318,7 @@ int InterEwe::readBew(char *shmname, char *file)
 				//cout << "flag:" << hex << flag <<endl;
 				if (flag)
 				{					
-					data = *(pDataNum + src);
+					data = readLitNum(src);					
 					writeDatanum(dest,data,mapDataNum[dest]);	
 				}
 				else
@@ -509,27 +511,27 @@ int InterEwe::readBew(char *shmname, char *file)
 						//oper2 = *(pDataNum+oper2Addr);
 					case 0:
 						if (*(pDataNum + oper1Addr) >= *(pDataNum + oper2Addr))
-							PC = *(pLitNum + intAddr); //movemos el pc
+							PC = readLitNum(intAddr); //movemos el pc
 						break;
 					case 1:
 						if (*(pDataNum + oper1Addr) > *(pDataNum + oper2Addr))
-							PC = *(pLitNum + intAddr); //movemos el pc
+							PC = readLitNum(intAddr); //movemos el pc
 						break;
 					case 3:
 						if (*(pDataNum + oper1Addr) <= *(pDataNum + oper2Addr))
-							PC = *(pLitNum + intAddr); //movemos el pc
+							PC = readLitNum(intAddr); //movemos el pc
 						break;
 					case 4:
 						if (*(pDataNum + oper1Addr) < *(pDataNum + oper2Addr))
-							PC = *(pLitNum + intAddr); //movemos el pc
+							PC = readLitNum(intAddr); //movemos el pc
 						break;
 					case 5:
 						if (*(pDataNum + oper1Addr) == *(pDataNum + oper2Addr))
-							PC = *(pLitNum + intAddr); //movemos el pc
+							PC = readLitNum(intAddr); //movemos el pc
 						break;
 					case 6:
 						if (*(pDataNum + oper1Addr) != *(pDataNum + oper2Addr))
-							PC = *(pLitNum + intAddr); //movemos el pc
+							PC = readLitNum(intAddr); //movemos el pc
 					}
 				}
 				else
@@ -540,27 +542,27 @@ int InterEwe::readBew(char *shmname, char *file)
 						//oper2 = *(pDataStr+oper2Addr);
 					case 0:
 						if (*(pDataStr + oper1Addr) >= *(pDataStr + oper2Addr))
-							PC = *(pLitNum + intAddr); //movemos el pc
+							PC = readLitNum(intAddr); //movemos el pc
 						break;
 					case 1:
 						if (*(pDataStr + oper1Addr) > *(pDataStr + oper2Addr))
-							PC = *(pLitNum + intAddr); //movemos el pc
+							PC = readLitNum(intAddr); //movemos el pc
 						break;
 					case 3:
 						if (*(pDataStr + oper1Addr) <= *(pDataStr + oper2Addr))
-							PC = *(pLitNum + intAddr); //movemos el pc
+							PC = readLitNum(intAddr); //movemos el pc
 						break;
 					case 4:
 						if (*(pDataStr + oper1Addr) < *(pDataStr + oper2Addr))
-							PC = *(pLitNum + intAddr); //movemos el pc
+							PC = readLitNum(intAddr); //movemos el pc
 						break;
 					case 5:
 						if (*(pDataStr + oper1Addr) == *(pDataStr + oper2Addr))
-							PC = *(pLitNum + intAddr); //movemos el pc
+							PC = readLitNum(intAddr); //movemos el pc
 						break;
 					case 6:
 						if (*(pDataStr + oper1Addr) != *(pDataStr + oper2Addr))
-							PC = *(pLitNum + intAddr); //movemos el pc
+							PC = readLitNum(intAddr); //movemos el pc
 					}
 				}
 			case 14:
@@ -592,6 +594,8 @@ int InterEwe::readBew(char *shmname, char *file)
 	myReadFileBew.close();
 	return 0;
 }
+
+
 int InterEwe::assignMemory(char *shmname)
 {
 	int shm = shm_open(shmname, O_RDWR, 0600);
@@ -616,6 +620,88 @@ int InterEwe::getSize(int addr)
 	return (addr & 0xFFFF);
 }
 
+
+int InterEwe::readLitNum(int pos){
+  return *(pLitNum+pos);
+}
+
+
+
+char InterEwe::readLitstr(int pos){
+  char* value[128];
+  for(int i = pos; *((char*)litstr+i)!='\0' && i < limite; i++){
+    value[i] = (char*)((char*)litstr+i);
+  }
+  return *value;
+}
+
+
+void InterEwe::writeDatastr(int pos, char data,int politica){
+
+  if(politica==1){
+    // prioridad lectores
+    sem_wait(&(*pWorkLoad));
+    //cout<<"Entre a la politica 1 writeDatastr "<<endl;
+    for(int i=0; i<strlen(data); i++){
+      *(pDataStr + pos + i) = (char)data[i];
+    }
+    *(pDataStr + pos + strlen(data)) = '\0';
+    //sleep(1000);
+    sem_post(&(*pWorkLoad));
+  }else if(politica==2){//prioridad escritores
+    sem_wait (&(*(pWorkLoad+2)));
+    //cout<<"Entre a la politica 2 writeDatastr "<<endl;
+    cuentaescr++;
+    if (cuentaescr == 1){
+      sem_wait(&(*(pWorkLoad+3)) );
+      sem_post (&(*(pWorkLoad+2)));
+      sem_wait (&(*(pWorkLoad+4)));
+      for(int i=0; i<strlen(data); i++){
+        *(datastr + pos + i) = (char)data[i];
+      }
+      *(datastr + pos + strlen(data)) = '\0';
+      sem_post (&(*(pWorkLoad+4)) );
+      sem_wait (&(*(pWorkLoad+2)));
+      cuentaescr--;
+    }
+    if (cuentaescr == 0){
+      sem_post (&(*(pWorkLoad+3)));
+      sem_post(&(*(pWorkLoad+2)));
+    }
+  }else if(politica==3){//Bloqueo
+    sem_wait(&(*(pWorkLoad+7)));
+    bloqueo--;
+    //cout<<"Entre a la politica 3 writeDatastr------bloque: "<<bloqueo<<endl;
+    for(int i=0; i<strlen(data); i++){
+      *(datastr + pos + i) = (char)data[i];
+    }
+    *(datastr + pos + strlen(data)) = '\0';
+    bloqueo++;
+    //cout<<"bloque: "<<bloqueo<<endl;
+    sem_post(&(*(pWorkLoad+7)));
+
+  }  else if (politica==4){
+    //cout<<"Entre a la politica 4 writeDatastr"<<endl;
+    for(int i=0; i<strlen(data); i++){
+      *(datastr + pos + i) = (char)data[i];
+    }
+    *(datastr + pos + strlen(data)) = '\0';
+  }else{
+    //cout<<"Error de segmento en writeDatastr"<<endl;
+    for(int i=0; i<strlen(data); i++){
+      *(datastr + pos + i) = (char)data[i];
+    }
+    *(datastr + pos + strlen(data)) = '\0';
+  }
+
+
+}
+
+
+
+
+
+// OJO CON LOS CONTADORES
 void InterEwe::writeDatanum(int pos, int data, int politica)
 {
 	if (politica == 1)

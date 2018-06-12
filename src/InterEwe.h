@@ -7,8 +7,13 @@ class InterEwe {
  public:
   int readBew(char* shmname, char* file);
   int assignMemory(char* shmname);
+  int assignSections();
   int getBase(int addr);
   int getSize(int addr);
+  void writeDatanum(int pos, int data, int politica);
+  int readLitNum(int dir);
+  char readLitstr(int pos);
+  void writeDatastr(int pos, char data,int politica);
   InterEwe(); // This is the constructor declaration
   ~InterEwe(); // This is the destructor: declaration
  private:
