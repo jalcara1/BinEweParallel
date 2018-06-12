@@ -8,8 +8,6 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
-#include <map>
-
 using namespace std;
 
 unsigned char *pMem,*pLitStr, *pDataStr;
@@ -52,20 +50,22 @@ int main(int argc, char** argv){
     return 1;
   }
 
-  unsigned int input, memgSize;
-  unsigned char leer;
+  int input, memgSize;
+  char leer;
+  
   // unsigned int memg[10][2]; //variable cambiada [segmento][ 0 = inicio][1 = size]
   fstream myReadFileMew(argv[2],ios_base::binary|ios_base::in);
   
   if (myReadFileMew.is_open()) {
-    myReadFileMew.read((char*)&input,sizeof(unsigned int));
-    
-    memgSize = getSize(input); // tamaño de memg
-    unsigned int memg[memgSize]; 
-    memg[0] = input; 
-    
-    
-    for(int i = 1;i<memgSize;++i){
+    myReadFileMew.read((char*)&input,sizeof(unsigned int));    
+    memgSize = getSize(input); // tamaño de memg    
+    if(createMemory(argv[1])){ // crear memoria
+      cerr << "Error: la memoria "<<argv[1]<<" ha creada anteriormente"<<endl;
+      return 1;
+    }        
+    // OJO!! hay que hacer el ajuste
+    // leer primero los segmentos
+    for(int i = 1; i < memgSize ; ++i){
       myReadFileMew.read((char*)&input,sizeof(unsigned int));
 
       if(i == 2 || i == 4){ //solo si es litstr o .datastr
@@ -73,7 +73,7 @@ int main(int argc, char** argv){
           segSize = segSize-(segSize%4)+4; // no funciona con -=
         }
       }
-      memg[i] = input;
+      memg[i] = input;      memg[i] = input;
 
     }
 
@@ -81,17 +81,10 @@ int main(int argc, char** argv){
     input = memg[5];
     size_mem = getBase(input)+ getSize(input);  // inicio workload + tamaño
     
-    if(createMemory(argv[1])){ // crear memoria
-      cerr << "Error: la memoria "<<argv[1]<<" ha creada anteriormente"<<endl;
-      return 1;
-    }
-    
-
     // escribir en memoria
     for(int i = 0;i<memgSize;++i){
       *(pMemg+i) = memg[i];
     }
-
 
     cout << getBase(memg[1]) << endl;
     // crear punteros
@@ -103,14 +96,14 @@ int main(int argc, char** argv){
 
     // escribir litnum
     for(int i = 0; i<getSize(memg[1]);++i){
-      myReadFileMew.read((char*)&input,sizeof(unsigned int));
+      myReadFileMew.read((char*)&input,sizeof(int));
       *(pLitNum+i) = input;
     }
 
     cout << getSize(memg[2])<<endl;
     // escribit litstring
     for(int i = 0; i<getSize(memg[2]);++i){
-      myReadFileMew.read((char*)&leer,sizeof(unsigned char));
+      myReadFileMew.read((char*)&leer,sizeof(char));
       *(pLitStr+i) = leer;
     }
     

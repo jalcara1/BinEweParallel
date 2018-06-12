@@ -238,7 +238,7 @@ int main(int argc, char** argv){
                     strAddr = addr & 0x7FFF;
                     memref =  addr >> 15;
                     cout << "memref:"<<hex<<memref<<endl;
-                    cout << "strAddr:"<<hex<<strAddr<<endl;
+                    cout << "SstrAddr:"<<hex<<strAddr<<endl;
 
                     cont = 0;
                     // aux = *(pLitStr + strAddr + cont)

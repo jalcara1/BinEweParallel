@@ -8,72 +8,103 @@ ControlEwe::~ControlEwe(void) {
   //cout << "ControlEwe Object is being deleted" << endl;
 }
 int ControlEwe::readMew() {
-  unsigned int input, memgSize;
-  unsigned char leer;
+  int segSize;
+  unsigned int input,segments[6] ;
+  char leer;
+
   fstream myReadFileMew(argv[1],ios_base::binary|ios_base::in);
-  if (myReadFileMew.is_open()) {
-    myReadFileMew.read((char*)&input,sizeof(unsigned int));
-    memgSize = getSize(input); // .memg size
-    if(createMemory(argv[0])){ // crear memoria
+ 
+  if (myReadFileMew.is_open()) {  
+
+    for(int i = 0; i <= 5; ++i){
+      myReadFileMew.read((char*)&input,sizeof(unsigned int));
+      segments[i] = input;
+    }
+
+    // calcular tamaño memoria
+    size_mem = getBase(segments[5]) + getSize(segments[5]);  // inicio workload + tamaño
+
+    if(createMemory(argv[0],size_mem)){ // crear memoria
       cerr << "Error: la memoria "<<argv[1]<<" ha creada anteriormente"<<endl;
       return 1;
     }
-    *(pMemg+0) = input;
-    for(int i = 1; i< memgSize; ++i){
+    
+    pMemg = (unsigned int *)(pMem+0);
+
+    for(int i = 0; i <= 5; ++i){
+      input = segments[i];      
+      if(i == 2 || i == 4){ //solo si es litstr o .datastr
+        if( (input%4) != 0 ){
+          input = input-(input%4)+4;
+        }
+      }
+      *(pMemg + i) = input;
+    }
+
+    pLitNum = (int *)(pMem + getBase(*(pMemg+1)));
+    pLitStr = (char *)(pMem + getBase(*(pMemg+2))); //Char
+    pDataNum = (int *)(pMem + getBase(*(pMemg+3)));
+    pDataStr = (char *)(pMem + getBase(*(pMemg+4))); //Char
+    pWorkLoad = (sem_t*)((int *)(pMem + getBase(*(pMemg+5))));
+    
+
+    segSize = getSize(int(*(pMemg + 0))); // .memg size    
+    
+    cout <<"s:" <<segSize-6+1 << endl;
+    for(int i = 6; i < segSize; ++i){
       myReadFileMew.read((char*)&input,sizeof(unsigned int));
       *(pMemg + i) = input;
     }
-    // calcular tamaño memoria
-    input = *(pMemg + 5); //memg[5];
-    size_mem = getBase(input) + getSize(input);  // inicio workload + tamaño
-    // crear punteros
-    pLitNum = (unsigned int *)(pMem + getBase(*(pMemg+1)));
-    pLitStr = (unsigned char *)(pMem + getBase(*(pMemg+2))); //Char
-    pDataNum = (unsigned int *)(pMem + getBase(*(pMemg+3)));
-    pDataStr = (unsigned char *)(pMem + getBase(*(pMemg+4))); //Char
-    pWorkLoad = (sem_t*)((int *)(pMem + getBase(*(pMemg+5))));
+     
+    
+    segSize =  getSize(int(*(pMemg+1)));
     // escribir litnum
-    for(int i = 0; i< getSize(*(pMemg+1)); ++i){
+    for(int i = 0; i < segSize ; ++i){
       myReadFileMew.read((char*)&input,sizeof(unsigned int));
-      *(pLitNum+i) = input;
+      *(pLitNum+i) = input;     
     }
-    // escribit litstring
-    for(int i = 0; i< getSize(*(pMemg+2)); ++i){
-      myReadFileMew.read((char*)&leer,sizeof(unsigned char));
+    
+    segSize =  getSize(int(*(pMemg+2)));
+    cout <<"s:" <<segSize << endl;
+    // escribir litstring
+    for(int i = 0; i< segSize; ++i){
+      myReadFileMew.read((char*)&leer,sizeof(char));
+      cout << leer << " ";
       *(pLitStr+i) = leer;
     }
-    // int sem_init(sem_t *sem, int pshared, unsigned int value);
-    // If pshared is nonzero, then the semaphore is shared between processes, and should be located in a region of shared memory
-    sem_t mutex;
-    sem_init(&mutex, 1, 1);
-    *(pWorkLoad+0) = mutex;
+    // // int sem_init(sem_t *sem, int pshared, unsigned int value);
+    // // If pshared is nonzero, then the semaphore is shared between processes, and should be located in a region of shared memory
+    // sem_t mutex;
+    // sem_init(&mutex, 1, 1);
+    // *(pWorkLoad+0) = mutex;
   }
   myReadFileMew.close();
   return 0;
 }
-int ControlEwe::createMemory(char* shmname){ //Just Create The *pMem for Each InterEwe
-  size_mem = 1000;
+
+int ControlEwe::createMemory(char* shmname,int size_mem){ //Just Create The *pMem for Each InterEwe
+  // size_mem = 1000;/
   int shm = shm_open(shmname, O_CREAT | O_RDWR | O_EXCL, 0600);
   if (shm == -1) {
     cerr << "Shared memory already created" << endl;
     return 1;
   }    // $ man shm_open # Read Manual
+
   if (ftruncate(shm, size_mem) == -1) {
     cerr << "Problems with memory size" << endl;
     return 1;
   }
   //size_mem= 1000; // Workload -> Memory last size
-  pMem = static_cast<unsigned char*>(mmap(NULL, size_mem, PROT_READ | PROT_WRITE, MAP_SHARED, shm, 0));
+  pMem = static_cast<char*>(mmap(NULL, size_mem, PROT_READ | PROT_WRITE, MAP_SHARED, shm, 0));
   if ((void *) pMem == (void *) -1) {
     cerr << "Problems with memory map" << endl;
     return 1;
   }
-  pMemg = (unsigned int *)pMem;
   return 0;
 }
-unsigned int ControlEwe::getSize(unsigned int addr){
+int ControlEwe::getSize(int addr){
   return (addr & 0xFFFF);
 }
-unsigned int ControlEwe::getBase(unsigned int addr){
+int ControlEwe::getBase(int addr){
   return ((addr >> 16) << 2);
 }

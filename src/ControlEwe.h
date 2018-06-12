@@ -6,9 +6,9 @@
 class ControlEwe {
  public:
   int readMew();
-  int createMemory(char* shmname);
-  unsigned int getSize(unsigned int addr);
-  unsigned int getBase(unsigned int addr);
+  int createMemory(char* shmname,int size_mem);
+  int getSize(int addr);
+  int getBase(int addr);
 
   ControlEwe(char** argv); // This is the constructor declaration
   ~ControlEwe(); // This is the destructor: declaration
@@ -16,12 +16,12 @@ class ControlEwe {
   char** argv;
 
   off_t size_mem; // Include Specific Library
-  unsigned char *pMem;
+  char *pMem;
   unsigned int *pMemg;
-  unsigned int *pLitNum; 
-  unsigned char *pLitStr;
-  unsigned int *pDataNum;
-  unsigned char *pDataStr;
+  int *pLitNum; 
+  char *pLitStr;
+  int *pDataNum;
+  char *pDataStr;
   sem_t *pWorkLoad; //Semaphore Type
 };
 

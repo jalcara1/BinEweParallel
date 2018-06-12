@@ -1,4 +1,4 @@
-CC = g++
+CC = g++ --std=c++11
 CFLAGS = -c -Wall -o3
 LDFLAGS = -lrt -pthread
 CONTROL_SOURCES = src/BinEweControl.cpp src/ControlEwe.cpp

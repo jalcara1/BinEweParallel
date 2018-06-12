@@ -8,6 +8,7 @@ InterEwe::~InterEwe(void) {
   //cout << "InterEwe Object is being deleted" << endl;
 }
 int InterEwe::readBew(char* shmname, char* file) {
+	return 0;
   fstream myReadFileBew(file,ios_base::binary|ios_base::in);
   int cont =0, code;
   unsigned long long addr;
@@ -25,13 +26,13 @@ int InterEwe::readBew(char* shmname, char* file) {
   pWorkLoad = (sem_t*)((int *)(pMem + getBase(*(pMemg+5))));
   //sem_wait(&(*(pWorkLoad+0))); //Semamphore Call Example
   
-  int ww =69;
-  //cout << "Starting »» " << getpid() << " : " << ww << endl;
-  sem_wait(&(*(pWorkLoad+0))); // Block Resource
-  cout << "Before Write --> " << getpid() << endl;
-  cin >> ww;
-  cout << "After Write -->" << getpid() << " : " << ww << endl;
-  sem_post(&(*(pWorkLoad+0))); // Unblock Resource
+  // int ww =69;
+  // //cout << "Starting »» " << getpid() << " : " << ww << endl;
+  // sem_wait(&(*(pWorkLoad+0))); // Block Resource
+  // cout << "Before Write --> " << getpid() << endl;
+  // cin >> ww;
+  // cout << "After Write -->" << getpid() << " : " << ww << endl;
+  // sem_post(&(*(pWorkLoad+0))); // Unblock Resource
   
   if (myReadFileBew.is_open()){
     while (myReadFileBew.read((char*)&input,sizeof(unsigned char))) {   
@@ -182,7 +183,7 @@ int InterEwe::readBew(char* shmname, char* file) {
       //cout << "address "<<hex << instructions[i]<< endl;
     }
     //cout << endl << "Interpretando: "<< endl;
-    char aux;       
+  
     for(int PC = 0; PC< instructions.size(); ++PC){            
       opcode = opcodes[PC];
       addr = instructions[PC];
