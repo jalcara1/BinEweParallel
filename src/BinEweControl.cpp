@@ -46,7 +46,7 @@ int main(int argc, char** argv){
     }
   }
   int BinEwe =  bewsFiles.size();
-  cout << "xx " << BinEwe << endl; 
+  char** parameters;
   int link[2], status;
   memoryName = argv[2];
   char in[4096];
@@ -54,11 +54,19 @@ int main(int argc, char** argv){
   if(pipe(link) == -1){
     exit(EXIT_FAILURE);
   }
+  parameters = new char* [5];
+  parameters[0] = "./BinEweInterpreter";
+  parameters[1] = "-n";
+  parameters[2] = memoryName;
+  parameters[4] = NULL;
+  string file = "";
   ControlEwe Control(memoryName, mewFile);
   Control.readMew(); //Read Mew.mew and Create Memory
   pid_t processes[BinEwe]; // Run With Exec -> As a Bash Command
   for(int files =0; files< BinEwe; ++files){
-    cout << memoryName << " == " << bewsFiles[files] << endl;
+    file = bewsFiles[files];
+    parameters[3] = const_cast<char*>(file.c_str());
+    cout << "------>>>" << parameters[3] << endl;
     if ((processes[files] = ::fork()) == -1) {
       perror("Exec Process Failed");
       exit(EXIT_FAILURE);
@@ -66,7 +74,9 @@ int main(int argc, char** argv){
       dup2(link[1], STDOUT_FILENO);
       close(link[0]);
       close(link[1]);
-      execlp( "./BinEweInterpreter", "./BinEweInterpreter", "-n", memoryName, bewsFiles[files], NULL);
+      //execlp("./BinEweInterpreter", "./BinEweInterpreter", "-n", memoryName, bewsFiles[files], NULL);
+      //execvp("./BinEweInterpreter", parameters, NULL);
+      execvp("./BinEweInterpreter", parameters);
       _exit(EXIT_SUCCESS);
     }else{
       close(link[1]);

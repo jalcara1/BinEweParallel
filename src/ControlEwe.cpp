@@ -42,14 +42,19 @@ int ControlEwe::readMew() {
       myReadFileMew.read((char*)&leer,sizeof(unsigned char));
       *(pLitStr+i) = leer;
     }
-    cout << "LICI\n";
     // int sem_init(sem_t *sem, int pshared, unsigned int value);
     // If pshared is nonzero, then the semaphore is shared between processes, and should be located in a region of shared memory
-    sem_t mutex, mutex2;
-    sem_init(&mutex, 1, 1);
-    sem_init(&mutex2, 1, 1);
-    *(pWorkLoad+0) = mutex;
-    *(pWorkLoad+1) = mutex2;
+    sem_t mutexReadInt, mutexReadStr, mutexWriteInt, mutexWriteStr, mutexBreak;
+    sem_init(&mutexReadInt, 1, 1);
+    sem_init(&mutexReadStr, 1, 1);
+    sem_init(&mutexWriteInt, 1, 1);
+    sem_init(&mutexWriteStr, 1, 1);
+    sem_init(&mutexBreak, 1, 1);
+    *(pWorkLoad+0) = mutexReadInt;
+    *(pWorkLoad+1) = mutexReadStr;
+    *(pWorkLoad+2) = mutexWriteInt;
+    *(pWorkLoad+3) = mutexWriteStr;
+    *(pWorkLoad+4) = mutexBreak;
   }
   myReadFileMew.close();
   return 0;
@@ -72,7 +77,6 @@ int ControlEwe::createMemory(){ //Just Create The *pMem for Each InterEwe
     return 1;
   }
   pMemg = (unsigned int *)pMem;
-  cout << "LOCO\n";
   return 0;
 }
 unsigned int ControlEwe::getSize(unsigned int addr){
