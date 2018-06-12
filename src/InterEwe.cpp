@@ -27,7 +27,7 @@ int InterEwe::readBew(char* shmname, char* file) {
   //sem_wait(&(*(pWorkLoad+0))); //Semamphore Call Example
   
   int readInt =0;
-  char* readStr;
+  char* readStr, braek;
   // //cout << "Starting »» " << getpid() << " : " << ww << endl;
   // sem_wait(&(*(pWorkLoad+0))); // Block Resource
   // cout << "Before Write --> " << getpid() << endl;
@@ -445,6 +445,10 @@ int InterEwe::readBew(char* shmname, char* file) {
 	  Si sucede esta instrucción enviar información a Control y bloquear proceso, luego esperar información para activar
 	  Seeing Pipe and Block Process On C++
 	*/
+	sem_wait(&(*(pWorkLoad+0))); // Block Resource
+	cout << "Break, Enter Any Key: ";
+	cin >> braek;
+	sem_post(&(*(pWorkLoad+0))); // Unblock Resource
 	//cout << "op: " << code << endl;
 	// OJO!!! suspender proceso del interpretador, avisarle al control, hasta una reactivación
 	//cout << "suspendido"<<endl;
