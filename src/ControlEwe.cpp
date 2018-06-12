@@ -64,9 +64,25 @@ int ControlEwe::readMew() {
     }
     // int sem_init(sem_t *sem, int pshared, unsigned int value);
     // If pshared is nonzero, then the semaphore is shared between processes, and should be located in a region of shared memory
-    sem_t mutexInputOutput;
+    sem_t mutex1, mutexcescr, slect, sescr, mutex2, mutextlect, mutexB, mutexBImp, mutexInputOutput;
+    sem_init(&mutex1, 1, 1);
+    sem_init(&mutexcescr, 1, 1);
+    sem_init(&slect, 1, 1);
+    sem_init(&sescr, 1, 1);
+    sem_init(&mutex2, 1, 1);
+    sem_init(& mutextlect, 1, 1);
+    sem_init(&mutexB, 1, 1);
+    sem_init(&mutexBImp, 1, 1);
     sem_init(&mutexInputOutput, 1, 1);
-    *(pWorkLoad+0) = mutexInputOutput;
+    *(pWorkLoad+0) = mutex1;
+    *(pWorkLoad+1) = mutexcescr;
+    *(pWorkLoad+2) = slect;
+    *(pWorkLoad+3) = sescr;
+    *(pWorkLoad+4) = mutex2;
+    *(pWorkLoad+5) = mutextlect;
+    *(pWorkLoad+6) = mutexB;
+    *(pWorkLoad+7) = mutexBImp;
+    *(pWorkLoad+8) = mutexInputOutput;
   }
   myReadFileMew.close();
   return 0;
