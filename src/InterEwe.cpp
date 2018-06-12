@@ -627,12 +627,8 @@ int InterEwe::readLitNum(int pos){
 
 
 
-char InterEwe::readLitstr(int pos){
-  char* value[128];
-  for(int i = pos; *((char*)litstr+i)!='\0' && i < limite; i++){
-    value[i] = (char*)((char*)litstr+i);
-  }
-  return *value;
+char InterEwe::readLitstr(int pos){  
+    return *(pLitStr+pos);
 }
 
 
@@ -641,12 +637,7 @@ void InterEwe::writeDatastr(int pos, char data,int politica){
   if(politica==1){
     // prioridad lectores
     sem_wait(&(*pWorkLoad));
-    //cout<<"Entre a la politica 1 writeDatastr "<<endl;
-    for(int i=0; i<strlen(data); i++){
-      *(pDataStr + pos + i) = (char)data[i];
-    }
-    *(pDataStr + pos + strlen(data)) = '\0';
-    //sleep(1000);
+    *(pDataStr + pos) = data;
     sem_post(&(*pWorkLoad));
   }else if(politica==2){//prioridad escritores
     sem_wait (&(*(pWorkLoad+2)));
@@ -656,10 +647,8 @@ void InterEwe::writeDatastr(int pos, char data,int politica){
       sem_wait(&(*(pWorkLoad+3)) );
       sem_post (&(*(pWorkLoad+2)));
       sem_wait (&(*(pWorkLoad+4)));
-      for(int i=0; i<strlen(data); i++){
-        *(datastr + pos + i) = (char)data[i];
-      }
-      *(datastr + pos + strlen(data)) = '\0';
+    	*(pDataStr + pos) = data;
+        
       sem_post (&(*(pWorkLoad+4)) );
       sem_wait (&(*(pWorkLoad+2)));
       cuentaescr--;
@@ -672,26 +661,19 @@ void InterEwe::writeDatastr(int pos, char data,int politica){
     sem_wait(&(*(pWorkLoad+7)));
     bloqueo--;
     //cout<<"Entre a la politica 3 writeDatastr------bloque: "<<bloqueo<<endl;
-    for(int i=0; i<strlen(data); i++){
-      *(datastr + pos + i) = (char)data[i];
-    }
-    *(datastr + pos + strlen(data)) = '\0';
+    
+    *(pDataStr + pos) = data;
     bloqueo++;
     //cout<<"bloque: "<<bloqueo<<endl;
     sem_post(&(*(pWorkLoad+7)));
 
   }  else if (politica==4){
     //cout<<"Entre a la politica 4 writeDatastr"<<endl;
-    for(int i=0; i<strlen(data); i++){
-      *(datastr + pos + i) = (char)data[i];
-    }
-    *(datastr + pos + strlen(data)) = '\0';
+    
+    *(pDataStr + pos) = data;
+    
   }else{
-    //cout<<"Error de segmento en writeDatastr"<<endl;
-    for(int i=0; i<strlen(data); i++){
-      *(datastr + pos + i) = (char)data[i];
-    }
-    *(datastr + pos + strlen(data)) = '\0';
+      *(pDataStr + pos) = data;
   }
 
 
