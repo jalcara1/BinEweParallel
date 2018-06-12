@@ -21,13 +21,14 @@ int ControlEwe::readMew() {
     }
     // calcular tamaño memoria
     size_mem = getBase(segments[5]) + getSize(segments[5]);  // inicio workload + tamaño
-
+  
     if(createMemory(size_mem)){ // crear memoria
       cerr << "Error: la memoria "<<shmname<<" ha creada anteriormente"<<endl;
       return 1;
     }
+    
     pMemg = (unsigned int *)(pMem+0);
-
+    
     for(int i = 0; i <= 5; ++i){
       input = segments[i];      
       if(i == 2 || i == 4){ //solo si es litstr o .datastr
@@ -45,7 +46,6 @@ int ControlEwe::readMew() {
 
     segSize = getSize(int(*(pMemg + 0))); // .memg size    
     
-    cout <<"s:" <<segSize-6+1 << endl;
     for(int i = 6; i < segSize; ++i){
       myReadFileMew.read((char*)&input,sizeof(unsigned int));
       *(pMemg + i) = input;
@@ -57,11 +57,9 @@ int ControlEwe::readMew() {
       *(pLitNum+i) = input;     
     }
     segSize =  getSize(int(*(pMemg+2)));
-    cout <<"s:" <<segSize << endl;
     // escribir litstring
     for(int i = 0; i< segSize; ++i){
       myReadFileMew.read((char*)&leer,sizeof(char));
-      cout << leer << " ";
       *(pLitStr+i) = leer;
     }
     // int sem_init(sem_t *sem, int pshared, unsigned int value);
@@ -92,6 +90,7 @@ int ControlEwe::createMemory(int size_mem){ //Just Create The *pMem for Each Int
     cerr << "Problems with memory map" << endl;
     return 1;
   }
+  cout << "Memoria creada"<<endl;
   return 0;
 }
 int ControlEwe::getSize(int addr){
