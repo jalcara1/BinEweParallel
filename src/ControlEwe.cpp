@@ -45,7 +45,7 @@ int ControlEwe::readMew() {
     // int sem_init(sem_t *sem, int pshared, unsigned int value);
     // If pshared is nonzero, then the semaphore is shared between processes, and should be located in a region of shared memory
     sem_t mutex;
-    sem_init(&mutex, 0, 1);
+    sem_init(&mutex, 1, 1);
     *(pWorkLoad+0) = mutex;
   }
   myReadFileMew.close();
