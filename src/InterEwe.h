@@ -27,6 +27,8 @@ class InterEwe {
   int *pDataNum;
   char *pDataStr;
   sem_t *pWorkLoad; //Semaphore Type
+  int cuentaescr =0;
+  int bloqueo =1;
 };
 
 #endif 
