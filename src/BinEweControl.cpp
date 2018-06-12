@@ -66,7 +66,7 @@ int main(int argc, char** argv){
   for(int files =0; files< BinEwe; ++files){
     file = bewsFiles[files];
     parameters[3] = const_cast<char*>(file.c_str());
-    cout << "------>>>" << parameters[3] << endl;
+    //cout << "------>>>" << parameters[3] << endl;
     if ((processes[files] = ::fork()) == -1) {
       perror("Exec Process Failed");
       exit(EXIT_FAILURE);
