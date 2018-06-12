@@ -8,7 +8,7 @@ InterEwe::~InterEwe(void) {
   //cout << "InterEwe Object is being deleted" << endl;
 }
 int InterEwe::readBew(char* shmname, char* file) {
-	return 0;
+  return 0;
   fstream myReadFileBew(file,ios_base::binary|ios_base::in);
   int cont =0, code;
   unsigned long long addr;
@@ -27,6 +27,7 @@ int InterEwe::readBew(char* shmname, char* file) {
   //sem_wait(&(*(pWorkLoad+0))); //Semamphore Call Example
   
   int readInt =0;
+  char* readStr;
   // //cout << "Starting »» " << getpid() << " : " << ww << endl;
   // sem_wait(&(*(pWorkLoad+0))); // Block Resource
   // cout << "Before Write --> " << getpid() << endl;
@@ -340,88 +341,97 @@ int InterEwe::readBew(char* shmname, char* file) {
 	}  
 	break;
 	// OJO!!! 8,9,10,11 requieren posiblemente pipes
-      case 8:                
+      case 8: // Read Int
 	memref = addr;
+	sem_wait(&(*(pWorkLoad+0))); // Block Resource
+	cout << "Read Int: ";
+	cin >> readInt;
+	*(pDataNum + memref) = readInt;//leer desde control
+	sem_post(&(*(pWorkLoad+0))); // Unblock Resource
 	// int leerInt;
 	// cin >> leerInt;                
-	// *(pDataNum + memref) = leerInt//leer desde control
+	//*(pDataNum + memref) = leerInt//leer desde control
 	break;
-      case 9:
+      case 9:// Write Int
 	memref = addr;
+	sem_wait(&(*(pWorkLoad+0))); // Block Resource
+	cout << "Write Int: " << *(pDataNum + memref) << endl;
+	sem_post(&(*(pWorkLoad+0))); // Unblock Resource
 	// int printInt = *(pDataNum + memref);
 	// //cout <<  printInt;
 	//cout << "memref:"<<hex<<memref<<endl;
 	break;
-      case 10:
+      case 10: // Read Str
 	mrSize = addr & 0x7FFF;
 	dest =  addr >> 15;
+	sem_wait(&(*(pWorkLoad+0))); // Block Resource
+	cout << "Read Str: ";
+	cin >> readStr;                                           // OJO Julián Revisar dónde guardar ese dato
+	sem_post(&(*(pWorkLoad+0))); // Unblock Resource
 	//cout << "dest:" << hex << dest << endl;
 	//cout << "mrSize:" << hex << mrSize <<endl;
 	// hacer lo que debe hacer
-	//cout << "Starting »» " << getpid() << " : " << ww << endl;
+	break;
+      case 11: // Write Str
+	memref = addr;
 	sem_wait(&(*(pWorkLoad+0))); // Block Resource
-	cout << "Before Write --> " << getpid() << endl;
-	cin >> readInt;
-	cout << "After Write -->" << getpid() << " : " << readInt << endl;
+	cout << "Write Str: " << "OJO Revisar" << endl;           // OJO Julián Revisar dónde guardar ese dato
 	sem_post(&(*(pWorkLoad+0))); // Unblock Resource
 	break;
-      case 11:                    
-	memref = addr;
-	break;
-      case 12:                
+      case 12: 
 	intAddr = addr;
 	PC = *(pLitNum + intAddr); // PC es el pc
 	break;
-      case 13:                                                            
+      case 13: // Write Str
 	intAddr = addr & 0x7FFF;
 	oper2Addr = (addr>>15) & 0x7FFF;
 	oper1Addr = (addr>>30) & 0x7FFF;
 	addr >>= 45;
 	flag= addr & 1;
 	op = addr >> 1;
-	if(flag){
+	if(flag){ // Para DataNum o DataString
 	  switch(op){
 	    //oper1 = *(pDataNum+oper1Addr);
 	    //oper2 = *(pDataNum+oper2Addr);                         
 	  case 0:
-	    if(*(pDataNum+oper1Addr) >= *(pDataNum+oper2Addr)) PC = *(pDataNum+intAddr); //movemos el pc       
+	    if(*(pDataNum+oper1Addr) >= *(pDataNum+oper2Addr)) PC = *(pDataNum+intAddr); //movemos el pc
 	    break;
 	  case 1:
-	    if(*(pDataNum+oper1Addr) > *(pDataNum+oper2Addr)) PC = *(pDataNum+intAddr); //movemos el pc       
+	    if(*(pDataNum+oper1Addr) > *(pDataNum+oper2Addr)) PC = *(pDataNum+intAddr); //movemos el pc
 	    break;
 	  case 3: 
-	    if(*(pDataNum+oper1Addr) <= *(pDataNum+oper2Addr)) PC = *(pDataNum+intAddr); //movemos el pc       
+	    if(*(pDataNum+oper1Addr) <= *(pDataNum+oper2Addr)) PC = *(pDataNum+intAddr); //movemos el pc
 	    break;
 	  case 4:
-	    if(*(pDataNum+oper1Addr) < *(pDataNum+oper2Addr)) PC = *(pDataNum+intAddr); //movemos el pc       
+	    if(*(pDataNum+oper1Addr) < *(pDataNum+oper2Addr)) PC = *(pDataNum+intAddr); //movemos el pc
 	    break;
 	  case 5:
-	    if(*(pDataNum+oper1Addr) == *(pDataNum+oper2Addr)) PC = *(pDataNum+intAddr); //movemos el pc       
+	    if(*(pDataNum+oper1Addr) == *(pDataNum+oper2Addr)) PC = *(pDataNum+intAddr); //movemos el pc
 	    break;
 	  case 6:
-	    if(*(pDataNum+oper1Addr) != *(pDataNum+oper2Addr)) PC = *(pDataNum+intAddr); //movemos el pc       
+	    if(*(pDataNum+oper1Addr) != *(pDataNum+oper2Addr)) PC = *(pDataNum+intAddr); //movemos el pc
 	  }
 	}else{
 	  switch(op){
 	    //oper1 = *(pDataStr+oper1Addr);
 	    //oper2 = *(pDataStr+oper2Addr);                         
 	  case 0:
-	    if(*(pDataStr+oper1Addr) >= *(pDataStr+oper2Addr)) PC = *(pDataStr+intAddr); //movemos el pc       
+	    if(*(pDataStr+oper1Addr) >= *(pDataStr+oper2Addr)) PC = *(pDataStr+intAddr); //movemos el pc
 	    break;
 	  case 1:
-	    if(*(pDataStr+oper1Addr) > *(pDataStr+oper2Addr)) PC = *(pDataStr+intAddr); //movemos el pc       
+	    if(*(pDataStr+oper1Addr) > *(pDataStr+oper2Addr)) PC = *(pDataStr+intAddr); //movemos el pc
 	    break;
 	  case 3: 
-	    if(*(pDataStr+oper1Addr) <= *(pDataStr+oper2Addr)) PC = *(pDataStr+intAddr); //movemos el pc       
+	    if(*(pDataStr+oper1Addr) <= *(pDataStr+oper2Addr)) PC = *(pDataStr+intAddr); //movemos el pc
 	    break;
 	  case 4:
-	    if(*(pDataStr+oper1Addr) < *(pDataStr+oper2Addr)) PC = *(pDataStr+intAddr); //movemos el pc       
+	    if(*(pDataStr+oper1Addr) < *(pDataStr+oper2Addr)) PC = *(pDataStr+intAddr); //movemos el pc
 	    break;
 	  case 5:
-	    if(*(pDataStr+oper1Addr) == *(pDataStr+oper2Addr)) PC = *(pDataStr+intAddr); //movemos el pc       
+	    if(*(pDataStr+oper1Addr) == *(pDataStr+oper2Addr)) PC = *(pDataStr+intAddr); //movemos el pc
 	    break;
 	  case 6:
-	    if(*(pDataStr+oper1Addr) != *(pDataStr+oper2Addr)) PC = *(pDataStr+intAddr); //movemos el pc       
+	    if(*(pDataStr+oper1Addr) != *(pDataStr+oper2Addr)) PC = *(pDataStr+intAddr); //movemos el pc
 	  }                        
 	}
       case 14:
