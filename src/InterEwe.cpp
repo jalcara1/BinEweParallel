@@ -9,6 +9,11 @@ InterEwe::~InterEwe(void)
 {
 	//cout << "InterEwe Object is being deleted" << endl;
 }
+
+int InterEwe::assignSections()
+{
+}
+
 int InterEwe::readBew(char *shmname, char *file)
 {
 	fstream myReadFileBew(file, ios_base::binary | ios_base::in);
@@ -29,8 +34,9 @@ int InterEwe::readBew(char *shmname, char *file)
 	pWorkLoad = (sem_t *)((int *)(pMem + getBase(*(pMemg + 5))));
 	//sem_wait(&(*(pWorkLoad+0))); //Semamphore Call Example
 
-	int readInt = 0;
-	char *readStr,*writeStr, braek;
+	int readInt = 0, segSize, base;
+	char *readStr, *writeStr, braek;
+	unsigned int politica;
 	// //cout << "Starting »» " << getpid() << " : " << ww << endl;
 	// sem_wait(&(*(pWorkLoad+0))); // Block Resource
 	// cout << "Before Write --> " << getpid() << endl;
@@ -49,6 +55,7 @@ int InterEwe::readBew(char *shmname, char *file)
 
 	if (myReadFileBew.is_open())
 	{
+
 		while (myReadFileBew.read((char *)&input, sizeof(unsigned char)))
 		{
 			cont++;
@@ -56,8 +63,7 @@ int InterEwe::readBew(char *shmname, char *file)
 			opcode = input >> 4;
 			addr = input & 0xF;
 			code = opcode;
-			switch (opcode)
-			{
+			switch (opcode){
 			case 0:
 				// //cout << "op: " << code << endl;
 				for (int i = 0; i < 7; ++i)
@@ -206,27 +212,63 @@ int InterEwe::readBew(char *shmname, char *file)
 			instructions.push_back(addr); //addr sin opcode
 			opcodes.push_back(opcode);
 		}
-	
+
+		// este mapa me dice que politica tiene de 0 a 3
+		map<unsigned int, int> mapDataNum;
+		map<unsigned int, int> mapDataStr;
+
+		for (int i = 6; i < 10; ++i)
+		{
+			base = ((*(pMemg + i)) >> 16);
+			segSize = getSize(*(pMemg + i)) - base; // ej: 000B - 000A
+			politica = *(pMemg + base);
+			cout << segSize << endl;
+			for (int j = 0; j < segSize; ++j)
+			{
+
+				segSize = politica & 0x0000FFFF; // sacamos los 4 bits de la derecha
+				politica >>= 16;				 //sacamos los 4 bits de la izquierda (correrlo 16 bits)
+
+				if (politica >> 15 == 1)
+				{
+					//datanum
+					politica &= 0x1000;
+					segSize &= 0x1000;
+					for (int k = politica; k <= segSize; ++k)
+					{
+						mapDataNum[k] = i % 6; //se guarda la posicion sin salto
+											   // cout <<"datanum =>"<<(int)mapDataNum[k] << endl;
+					}
+				}
+				else
+				{
+					//datastring
+					for (int k = input; k <= segSize; ++k)
+					{
+						// cout << "k: "<<k<<endl;
+						mapDataStr[k] = i % 6; //se guarda la posicion en datanum
+											   // cout <<"datastr =>"<<(int)mapDataStr[k] << endl;
+					}
+				}
+			}
+		}
 		//cout << endl << "Interpretando: "<< endl;
 
-		  cout <<  endl << "Instrucciones: "<<endl;
-        for(int i = 0; i<instructions.size();++i){
-            code = opcodes[i];
-            cout << "opcode "<<hex << code << " ";
-            cout << "address "<<hex << instructions[i]<< endl;
-        }               
-        
-
-
-
+		//   cout <<  endl << "Instrucciones: "<<endl;
+		// for(int i = 0; i<instructions.size();++i){
+		//     code = opcodes[i];
+		//     cout << "opcode "<<hex << code << " ";
+		//     cout << "address "<<hex << instructions[i]<< endl;
+		// }
+		int data;
 		for (int PC = 0; PC < instructions.size(); ++PC)
 		{
 			opcode = opcodes[PC];
 			addr = instructions[PC];
 			code = opcode;
-			cout << endl << "PC "<<PC<<endl;
-			cout <<"op:"<<code<< endl;
-			cout << "address:" <<hex << addr << endl;
+			// cout << endl << "PC "<<PC<<endl;
+			// cout <<"op:"<<code<< endl;
+			// cout << "address:" <<hex << addr << endl;
 			switch (opcode)
 			{
 			case 0:
@@ -234,7 +276,8 @@ int InterEwe::readBew(char *shmname, char *file)
 				memref = addr >> 15;
 				//cout << "memref:"<<hex<<memref<<endl;
 				//cout << "intAddr:"<<hex<<intAddr<<endl;
-				*(pDataNum + memref) = *(pLitNum + intAddr);
+				data = *(pLitNum + intAddr);
+				writeDatanum(memref,data,mapDataNum[memref]);			
 				break;
 			case 1:
 				strAddr = addr & 0x7FFF;
@@ -254,8 +297,9 @@ int InterEwe::readBew(char *shmname, char *file)
 				intAddr = addr & 0x7FFF;
 				memref = addr >> 15;
 				//cout << "memref:"<<hex<<memref<<endl;
-				//cout << "intAddr:"<<hex<<intAddr<<endl;
-				*(pDataNum + memref) = PC + *(pLitNum + intAddr);
+				//cout << "intAddr:"<<hex<<intAddr<<endl;			
+				data = PC + *(pLitNum + intAddr);
+				writeDatanum(memref,data,mapDataNum[memref]);	
 				break;
 			case 3:
 				memref = addr >> 13;
@@ -271,8 +315,9 @@ int InterEwe::readBew(char *shmname, char *file)
 				//cout << "dest:" << hex << dest << endl;
 				//cout << "flag:" << hex << flag <<endl;
 				if (flag)
-				{
-					*(pDataNum + dest) = *(pDataNum + src);
+				{					
+					data = *(pDataNum + src);
+					writeDatanum(dest,data,mapDataNum[dest]);	
 				}
 				else
 				{
@@ -306,29 +351,31 @@ int InterEwe::readBew(char *shmname, char *file)
 					switch (op)
 					{
 					case 0:
-						// result = oper1 + oper2;
-						*(pDataNum + dest) = *(pDataNum + oper1Addr) + *(pDataNum + oper2Addr);
+						// result = oper1 + oper2;						
+						data = *(pDataNum + oper1Addr) + *(pDataNum + oper2Addr);
+						
 						break;
 					case 1:
 						// result = oper1 - oper2;
-						*(pDataNum + dest) = *(pDataNum + oper1Addr) - *(pDataNum + oper2Addr);
+						data = *(pDataNum + oper1Addr) - *(pDataNum + oper2Addr);
 						break;
 					case 2:
 						// result = oper1 * oper2;
-						*(pDataNum + dest) = *(pDataNum + oper1Addr) * *(pDataNum + oper2Addr);
+						data = *(pDataNum + oper1Addr) * *(pDataNum + oper2Addr);
 						break;
 					case 3:
 						// result = oper1 / oper2;
-						*(pDataNum + dest) = *(pDataNum + oper1Addr) / *(pDataNum + oper2Addr);
+						data = *(pDataNum + oper1Addr) / *(pDataNum + oper2Addr);
 						break;
 					case 4:
 						// result = oper1 % oper2;
-						*(pDataNum + dest) = *(pDataNum + oper1Addr) % *(pDataNum + oper2Addr);
+						data = *(pDataNum + oper1Addr) % *(pDataNum + oper2Addr);
 						break;
 					default:
 						cerr << "Error: operador no existe " << endl;
 						return 1;
 					}
+					writeDatanum(dest,data,mapDataNum[dest]);	
 				}
 				else
 				{
@@ -362,7 +409,8 @@ int InterEwe::readBew(char *shmname, char *file)
 				flag = addr >> 45;
 				if (flag)
 				{
-					*(pDataNum + dest) = *(pDataNum + src + intAddr);
+					data = *(pDataNum + src + intAddr);
+					writeDatanum(dest,data,mapDataNum[dest]);	
 				}
 				else
 				{
@@ -374,29 +422,31 @@ int InterEwe::readBew(char *shmname, char *file)
 				intAddr = (addr >> 15) & 0X7FFF;
 				dest = (addr >> 30) & 0X7FFF;
 				flag = addr >> 45;
+				dest+=intAddr;
 				if (flag)
 				{
-					*(pDataNum + dest + intAddr) = *(pDataNum + src);
+					data = *(pDataNum + src);
+					
+					writeDatanum(dest,data,mapDataNum[dest]);	
 				}
 				else
 				{
-					*(pDataStr + dest + intAddr) = *(pDataStr + src);
+					*(pDataStr) = *(pDataStr + src);
 				}
 				break;
 				// OJO!!! 8,9,10,11 requieren posiblemente pipes
-			case 8: // Read Int				
+			case 8: // Read Int
 				memref = addr;
 				sem_wait(&(*(pWorkLoad + 0))); // Block Resource
 				cout << "Read Int: ";
-				cin >> readInt;
-				readInt = 99;
-				*(pDataNum + memref) = readInt; //leer desde control
+				cin >> readInt;	
+				writeDatanum(memref,readInt,mapDataNum[memref]);	
 				sem_post(&(*(pWorkLoad + 0)));  // Unblock Resource
 				// int leerInt;
 				// cin >> leerInt;
 				//*(pDataNum + memref) = leerInt//leer desde control
 				break;
-			case 9: // Write Int				
+			case 9: // Write Int
 				memref = addr;
 				sem_wait(&(*(pWorkLoad + 0))); // Block Resource
 				cout << "Write Int: " << *(pDataNum + memref) << endl;
@@ -408,35 +458,36 @@ int InterEwe::readBew(char *shmname, char *file)
 			case 10: // Read Str
 				mrSize = addr & 0x7FFF;
 				dest = addr >> 15;
-				
+
 				cout << "dest:" << hex << dest << endl;
-				cout << "mrSize:" << hex << mrSize <<endl;
-				
+				cout << "mrSize:" << hex << mrSize << endl;
+
 				sem_wait(&(*(pWorkLoad + 0))); // Block Resource
 				cout << "Read Str: ";
-				cin >> readStr;                                           			
+				cin >> readStr;
 				sem_post(&(*(pWorkLoad + 0))); // Unblock Resource
 				cont = 0;
 
-				while(cont<mrSize && readStr[cont] != '0'){
-					*(pDataStr+dest+cont) = readStr[cont];
+				while (cont < mrSize && readStr[cont] != '0')
+				{
+					*(pDataStr + dest + cont) = readStr[cont];
 					cont++;
 				}
-				if(cont == mrSize) 
-					*(pDataStr+dest+cont) = '0';
-				
+				if (cont == mrSize)
+					*(pDataStr + dest + cont) = '0';
+
 				break;
 			case 11: // Write Str
 				memref = addr;
 				cont = 0;
 				writeStr = "";
-				while(*(pDataStr + memref + cont) != '0')
+				while (*(pDataStr + memref + cont) != '0')
 				{
 					writeStr += *(pDataStr + memref + cont);
 					cont++;
 				}
 				sem_wait(&(*(pWorkLoad + 0))); // Block Resource
-				cout << "Write Str: "<< writeStr << endl; 
+				cout << "Write Str: " << writeStr << endl;
 				sem_post(&(*(pWorkLoad + 0))); // Unblock Resource
 				break;
 			case 12:
@@ -542,7 +593,7 @@ int InterEwe::readBew(char *shmname, char *file)
 	return 0;
 }
 int InterEwe::assignMemory(char *shmname)
-{	
+{
 	int shm = shm_open(shmname, O_RDWR, 0600);
 	size_mem = 1000;
 	pMem = static_cast<char *>(mmap(NULL, size_mem, PROT_READ | PROT_WRITE, MAP_SHARED, shm, 0));
@@ -563,4 +614,55 @@ int InterEwe::getBase(int addr)
 int InterEwe::getSize(int addr)
 {
 	return (addr & 0xFFFF);
+}
+
+void InterEwe::writeDatanum(int pos, int data, int politica)
+{
+	if (politica == 1)
+	{
+		// prioridad lectores
+		sem_wait(&(*workload));
+		//cout<<"Entre a la politica 1 writeDatanum"<<endl;
+		*(pDataNum + pos) = data;		
+	
+		//sleep(1000);
+		sem_post(&(*workload));
+	}
+	else if (politica == 2)
+	{ //prioridad escritores
+		sem_wait(&(*(workload + 2)));
+		//cout<<"Entre a la politica 2 writeDatanum"<<endl;
+		cuentaescr++;
+		if (cuentaescr == 1)
+		{
+			sem_wait(&(*(workload + 3)));
+			sem_post(&(*(workload + 2)));
+			sem_wait(&(*(workload + 4)));
+			*(pDataNum + pos) = data;	
+			sem_post(&(*(workload + 4)));
+			sem_wait(&(*(workload + 2)));
+			cuentaescr--;
+		}
+
+		if (cuentaescr == 0)
+		{
+			sem_post(&(*(workload + 3)));
+			sem_post(&(*(workload + 2)));
+		}
+	}
+	else if (politica == 3)
+	{ //Bloqueo
+		sem_wait(&(*(workload + 7)));
+		bloqueo--;
+		//cout<<"Entre a la politica 3 writeDatanum------bloque: "<<bloqueo<<endl;
+		*(pDataNum + pos) = data;	
+		bloqueo++;
+		//cout<<"Bloqueo: "<<bloqueo<<endl;
+		sem_post(&(*(workload + 7)));
+	}
+	else if (politica == 4)
+	{
+		//cout<<"Entre a la politica 4 writeDatanum"<<endl;
+		*(pDataNum + pos) = data;	
+	}
 }
