@@ -1,7 +1,7 @@
 //Controlewe.cpp
 #include "ControlEwe.h"
 
-ControlEwe::ControlEwe(char** argvs) : argv(argvs)  {
+ControlEwe::ControlEwe(char* shmname, string mewFile) : shmname(shmname), mewFile(mewFile) {
   //cout << "ControlEwe Object is being created" << endl;
 }
 ControlEwe::~ControlEwe(void) {
@@ -12,7 +12,7 @@ int ControlEwe::readMew() {
   unsigned int input,segments[6] ;
   char leer;
 
-  fstream myReadFileMew(argv[1],ios_base::binary|ios_base::in);
+  fstream myReadFileMew(mewFile,ios_base::binary|ios_base::in);
  
   if (myReadFileMew.is_open()) {  
 
@@ -24,8 +24,8 @@ int ControlEwe::readMew() {
     // calcular tamaño memoria
     size_mem = getBase(segments[5]) + getSize(segments[5]);  // inicio workload + tamaño
 
-    if(createMemory(argv[0],size_mem)){ // crear memoria
-      cerr << "Error: la memoria "<<argv[1]<<" ha creada anteriormente"<<endl;
+    if(createMemory(size_mem)){ // crear memoria
+      cerr << "Error: la memoria "<<shmname<<" ha creada anteriormente"<<endl;
       return 1;
     }
     
@@ -72,17 +72,25 @@ int ControlEwe::readMew() {
       cout << leer << " ";
       *(pLitStr+i) = leer;
     }
-    // // int sem_init(sem_t *sem, int pshared, unsigned int value);
-    // // If pshared is nonzero, then the semaphore is shared between processes, and should be located in a region of shared memory
-    // sem_t mutex;
-    // sem_init(&mutex, 1, 1);
-    // *(pWorkLoad+0) = mutex;
+    // int sem_init(sem_t *sem, int pshared, unsigned int value);
+    // If pshared is nonzero, then the semaphore is shared between processes, and should be located in a region of shared memory
+    sem_t mutexReadInt, mutexReadStr, mutexWriteInt, mutexWriteStr, mutexBreak;
+    sem_init(&mutexReadInt, 1, 1);
+    sem_init(&mutexReadStr, 1, 1);
+    sem_init(&mutexWriteInt, 1, 1);
+    sem_init(&mutexWriteStr, 1, 1);
+    sem_init(&mutexBreak, 1, 1);
+    *(pWorkLoad+0) = mutexReadInt;
+    *(pWorkLoad+1) = mutexReadStr;
+    *(pWorkLoad+2) = mutexWriteInt;
+    *(pWorkLoad+3) = mutexWriteStr;
+    *(pWorkLoad+4) = mutexBreak;
   }
   myReadFileMew.close();
   return 0;
 }
 
-int ControlEwe::createMemory(char* shmname,int size_mem){ //Just Create The *pMem for Each InterEwe
+int ControlEwe::createMemory(int size_mem){ //Just Create The *pMem for Each InterEwe
   // size_mem = 1000;/
   int shm = shm_open(shmname, O_CREAT | O_RDWR | O_EXCL, 0600);
   if (shm == -1) {

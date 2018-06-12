@@ -26,13 +26,22 @@ int InterEwe::readBew(char* shmname, char* file) {
   pWorkLoad = (sem_t*)((int *)(pMem + getBase(*(pMemg+5))));
   //sem_wait(&(*(pWorkLoad+0))); //Semamphore Call Example
   
-  // int ww =69;
+  int readInt =0;
   // //cout << "Starting »» " << getpid() << " : " << ww << endl;
   // sem_wait(&(*(pWorkLoad+0))); // Block Resource
   // cout << "Before Write --> " << getpid() << endl;
   // cin >> ww;
   // cout << "After Write -->" << getpid() << " : " << ww << endl;
   // sem_post(&(*(pWorkLoad+0))); // Unblock Resource
+
+  // if(ww == 100){
+  //   string t = "";
+  //   cout << "Process Blocked Press: continue -->" << getpid() << endl;;
+  //   sem_wait(&(*(pWorkLoad+1))); // Block Resource
+  //   cin >> t;
+  //   cout << "Process Unlocked " << getpid() << " > " << ww << endl;
+  //   sem_post(&(*(pWorkLoad+1))); // Unblock Resource
+  // }  
   
   if (myReadFileBew.is_open()){
     while (myReadFileBew.read((char*)&input,sizeof(unsigned char))) {   
@@ -349,6 +358,12 @@ int InterEwe::readBew(char* shmname, char* file) {
 	//cout << "dest:" << hex << dest << endl;
 	//cout << "mrSize:" << hex << mrSize <<endl;
 	// hacer lo que debe hacer
+	//cout << "Starting »» " << getpid() << " : " << ww << endl;
+	sem_wait(&(*(pWorkLoad+0))); // Block Resource
+	cout << "Before Write --> " << getpid() << endl;
+	cin >> readInt;
+	cout << "After Write -->" << getpid() << " : " << readInt << endl;
+	sem_post(&(*(pWorkLoad+0))); // Unblock Resource
 	break;
       case 11:                    
 	memref = addr;
