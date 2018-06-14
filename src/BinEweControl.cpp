@@ -82,6 +82,8 @@ int main(int argc, char** argv){
       close(link[1]);
       int nbytes = read(link[0], in, sizeof(in));
       printf("\n%.*s ", nbytes, in);
+    }
+    for(int files =0; files < BinEwe; ++files){
       waitpid(processes[files], &status, 0);
     }
   }

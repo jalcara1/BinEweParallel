@@ -470,10 +470,10 @@ int InterEwe::readBew(char *shmname, char *file){
 
 	    //cout << "dest:" << hex << dest << endl;
 	    //cout << "mrSize:" << hex << mrSize <<endl;
-				
+	    readStr = new char[256];
 	    sem_wait(&(*(pWorkLoad + 8))); // Block Resource
 	    cout << "Read Str: ";
-	    //cin >> readStr;                                           			
+	    cin >> readStr;                                           			
 	    sem_post(&(*(pWorkLoad + 8))); // Unblock Resource
 	    cont = 0;
 	    while (cont < mrSize && readStr[cont] != '0'){
